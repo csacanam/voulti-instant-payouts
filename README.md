@@ -75,6 +75,35 @@ In the long term, **Voulti Payouts** aims to serve as the foundation for:
 
 ---
 
+## 🛠️ Development Setup
+
+### Prerequisites
+
+- Node.js v20+
+- npm or pnpm
+- Foundry (for smart contracts)
+
+### Frontend Installation
+
+```bash
+cd frontend
+npm install --include=optional --legacy-peer-deps
+npm run dev
+```
+
+**Important:** The project uses Tailwind CSS v4 with `lightningcss`, which requires native binaries. The `.npmrc` file in the frontend directory ensures these are installed correctly.
+
+### Smart Contracts
+
+```bash
+cd contracts
+forge install
+forge build
+forge test
+```
+
+---
+
 ## 🏆 Hackathon Track
 
 Built for the **PayPal USD** track at **ETHOnline 2025**.
