@@ -6,10 +6,9 @@ import type { CSVRow } from "@/lib/types"
 interface ValidationStepProps {
   csvData: CSVRow[]
   errors: number[]
-  onBack: () => void
 }
 
-export function ValidationStep({ csvData, errors, onBack }: ValidationStepProps) {
+export function ValidationStep({ csvData, errors }: ValidationStepProps) {
   const errorMessages = errors.map((errorIndex) => {
     const row = csvData[errorIndex]
     const rowNumber = errorIndex + 1
@@ -26,7 +25,7 @@ export function ValidationStep({ csvData, errors, onBack }: ValidationStepProps)
   })
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 pb-4">
       <Alert variant="destructive">
         <AlertTriangle className="h-4 w-4" />
         <AlertTitle>Found {errors.length} rows with errors</AlertTitle>

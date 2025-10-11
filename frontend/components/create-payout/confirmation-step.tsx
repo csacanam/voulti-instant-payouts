@@ -7,8 +7,6 @@ import type { CSVRow } from "@/lib/types"
 interface ConfirmationStepProps {
   csvData: CSVRow[]
   currentBalance: number
-  onConfirm: () => void
-  onBack: () => void
 }
 
 const EXCHANGE_RATES: Record<string, number> = {
@@ -17,7 +15,7 @@ const EXCHANGE_RATES: Record<string, number> = {
   MXN: 18.5,
 }
 
-export function ConfirmationStep({ csvData, currentBalance, onConfirm, onBack }: ConfirmationStepProps) {
+export function ConfirmationStep({ csvData, currentBalance }: ConfirmationStepProps) {
   const payoutsWithUSD = csvData.map((row) => ({
     ...row,
     amountUSD: row.amount / EXCHANGE_RATES[row.currency],
@@ -27,7 +25,7 @@ export function ConfirmationStep({ csvData, currentBalance, onConfirm, onBack }:
   const hasEnoughBalance = totalUSD <= currentBalance
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 pb-4">
       <div className="bg-muted p-6 rounded-lg">
         <h3 className="text-lg font-semibold text-foreground mb-4">Payout Summary</h3>
         <div className="space-y-3">

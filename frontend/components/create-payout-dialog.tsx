@@ -3,10 +3,12 @@
 import { useState } from "react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Button } from "@/components/ui/button"
 import { UploadStep } from "@/components/create-payout/upload-step"
 import { ValidationStep } from "@/components/create-payout/validation-step"
 import { ConfirmationStep } from "@/components/create-payout/confirmation-step"
 import { SinglePayoutForm } from "@/components/create-payout/single-payout-form"
+import { CheckCircle2 } from "lucide-react"
 import type { Payout, CSVRow } from "@/lib/types"
 
 interface CreatePayoutDialogProps {
@@ -75,6 +77,9 @@ export function CreatePayoutDialog({ open, onOpenChange, onCreatePayout, current
     onOpenChange(false)
   }
 
+  const totalUSD = csvData.reduce((sum, row) => sum + row.amount / getExchangeRate(row.currency), 0)
+  const hasEnoughBalance = totalUSD <= currentBalance
+
   return (
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="max-w-3xl max-h-[90vh] flex flex-col">
@@ -97,20 +102,44 @@ export function CreatePayoutDialog({ open, onOpenChange, onCreatePayout, current
               {step === "upload" && <UploadStep onUpload={handleUpload} />}
 
               {step === "validation" && (
-                <ValidationStep csvData={csvData} errors={validationErrors} onBack={() => setStep("upload")} />
+                <ValidationStep csvData={csvData} errors={validationErrors} />
               )}
 
               {step === "confirmation" && (
                 <ConfirmationStep
                   csvData={csvData}
                   currentBalance={currentBalance}
-                  onConfirm={handleConfirm}
-                  onBack={() => setStep("upload")}
                 />
               )}
             </TabsContent>
           </Tabs>
         </div>
+
+        {payoutType === "bulk" && (step === "validation" || step === "confirmation") && (
+          <div className="flex-shrink-0 flex gap-3 pt-4 border-t mt-4">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setStep("upload")}
+              className="flex-1"
+              size="lg"
+            >
+              Back
+            </Button>
+            {step === "confirmation" && (
+              <Button
+                type="button"
+                onClick={handleConfirm}
+                disabled={!hasEnoughBalance}
+                className="flex-1 gap-2"
+                size="lg"
+              >
+                <CheckCircle2 className="w-5 h-5" />
+                Confirm & Execute Payouts
+              </Button>
+            )}
+          </div>
+        )}
       </DialogContent>
     </Dialog>
   )
