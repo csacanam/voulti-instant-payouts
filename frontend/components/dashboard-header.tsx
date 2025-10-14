@@ -7,8 +7,6 @@ import { usePrivy } from "@privy-io/react-auth"
 export function DashboardHeader() {
   const { ready, authenticated, login, logout, user } = usePrivy()
 
-  console.log("Privy State:", { ready, authenticated })
-
   return (
     <header className="border-b border-border bg-card">
       <div className="container mx-auto px-4 py-4 max-w-7xl">
