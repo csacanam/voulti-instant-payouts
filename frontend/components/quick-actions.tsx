@@ -24,13 +24,13 @@ export function QuickActions() {
     {
       label: "New Payment Link",
       icon: LinkIcon,
-      onClick: () => router.push("/receive"),
+      onClick: () => router.push("/receive/links"),
       variant: "outline" as const,
     },
     {
       label: "Show QR",
       icon: QrCode,
-      onClick: () => {}, // Por ahora no hace nada
+      onClick: () => router.push("/receive/commerce-link"),
       variant: "outline" as const,
     },
   ]
@@ -45,7 +45,7 @@ export function QuickActions() {
               key={action.label}
               onClick={action.onClick}
               variant={action.variant}
-              className="flex-1 gap-2"
+              className="flex-1 gap-2 cursor-pointer"
               size="lg"
             >
               <Icon className="w-4 h-4" />

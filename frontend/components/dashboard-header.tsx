@@ -13,12 +13,9 @@ export function DashboardHeader() {
       <div className="container mx-auto px-4 py-4 max-w-7xl">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-3">
-            <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-primary">
-              <Wallet className="w-6 h-6 text-primary-foreground" />
-            </div>
             <div>
               <h1 className="text-xl font-semibold text-foreground">Voulti</h1>
-              <p className="text-sm text-muted-foreground">Instant Payouts</p>
+              <p className="text-sm text-muted-foreground">Your Business, Unchained.</p>
             </div>
           </div>
 

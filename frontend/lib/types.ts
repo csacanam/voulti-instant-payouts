@@ -34,3 +34,18 @@ export interface Transaction {
   senderName?: string // For payments/deposits
   txHash?: string
 }
+
+export type PaymentLinkStatus = "active" | "expired" | "disabled"
+export type PaymentLinkCurrency = "USD" | "COP" | "MXN" | "BRL"
+
+export interface PaymentLink {
+  id: string
+  title: string
+  currency: PaymentLinkCurrency
+  amount: number
+  status: PaymentLinkStatus
+  created: string
+  expires?: string
+  uses: number
+  url: string
+}
