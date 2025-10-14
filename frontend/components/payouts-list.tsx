@@ -8,16 +8,18 @@ import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Calendar } from "@/components/ui/calendar"
-import { ArrowUpRight, CalendarIcon, Search, SlidersHorizontal, X } from "lucide-react"
+import { ArrowUpRight, CalendarIcon, Search, SlidersHorizontal, X, Lock, Plus } from "lucide-react"
 import { format } from "date-fns"
 import type { Payout } from "@/lib/types"
 
 interface PayoutsListProps {
   payouts: Payout[]
   onPayoutClick: (payout: Payout) => void
+  onCreatePayout: () => void
+  isAuthenticated: boolean
 }
 
-export function PayoutsList({ payouts, onPayoutClick }: PayoutsListProps) {
+export function PayoutsList({ payouts, onPayoutClick, onCreatePayout, isAuthenticated }: PayoutsListProps) {
   const [searchQuery, setSearchQuery] = useState("")
   const [currencyFilter, setCurrencyFilter] = useState<string>("all")
   const [showFilters, setShowFilters] = useState(false)
@@ -55,26 +57,37 @@ export function PayoutsList({ payouts, onPayoutClick }: PayoutsListProps) {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-semibold text-foreground">Payout History</h2>
-        <Badge variant="secondary" className="text-sm">
-          {filteredPayouts.length} payouts
-        </Badge>
+        <div className="flex items-center gap-3">
+          {isAuthenticated && (
+            <>
+              <Badge variant="secondary" className="text-sm">
+                {filteredPayouts.length} payouts
+              </Badge>
+              <Button onClick={onCreatePayout} size="lg" className="gap-2">
+                <Plus className="w-5 h-5" />
+                Create Payout
+              </Button>
+            </>
+          )}
+        </div>
       </div>
 
-      <div className="space-y-3">
-        <div className="flex gap-2">
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-            <Input
-              placeholder="Search by recipient name..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-9"
-            />
+      {isAuthenticated && (
+        <div className="space-y-3">
+          <div className="flex gap-2">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Input
+                placeholder="Search by recipient name..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-9"
+              />
+            </div>
+            <Button variant="outline" size="icon" onClick={() => setShowFilters(!showFilters)}>
+              <SlidersHorizontal className="w-4 h-4" />
+            </Button>
           </div>
-          <Button variant="outline" size="icon" onClick={() => setShowFilters(!showFilters)}>
-            <SlidersHorizontal className="w-4 h-4" />
-          </Button>
-        </div>
 
         {showFilters && (
           <div className="p-4 bg-muted rounded-lg space-y-4">
@@ -168,55 +181,74 @@ export function PayoutsList({ payouts, onPayoutClick }: PayoutsListProps) {
             </div>
           </div>
         )}
-      </div>
+        </div>
+      )}
 
       <div className="grid gap-3">
-        {filteredPayouts.map((payout) => (
-          <Card
-            key={payout.id}
-            className="p-4 hover:shadow-md transition-all cursor-pointer hover:border-primary/50"
-            onClick={() => onPayoutClick(payout)}
-          >
-            <div className="flex items-center justify-between">
-              <div className="flex items-start gap-4 flex-1">
-                <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-secondary">
-                  <ArrowUpRight className="w-5 h-5 text-secondary-foreground" />
-                </div>
-
-                <div className="flex-1 min-w-0">
-                  <div className="mb-1">
-                    <h3 className="font-semibold text-foreground truncate">{payout.recipientName}</h3>
-                  </div>
-
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <CalendarIcon className="w-3.5 h-3.5" />
-                    <span>
-                      {new Date(payout.date).toLocaleDateString("en-US", {
-                        year: "numeric",
-                        month: "short",
-                        day: "numeric",
-                      })}{" "}
-                      at{" "}
-                      {new Date(payout.date).toLocaleTimeString("en-US", {
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })}
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              <div className="text-right">
-                <p className="text-lg font-semibold text-foreground">
-                  ${payout.amountUSD.toLocaleString("en-US", { minimumFractionDigits: 2 })}
-                </p>
-                <p className="text-sm text-muted-foreground">
-                  {payout.amount.toLocaleString("en-US", { minimumFractionDigits: 2 })} {payout.currency}
-                </p>
+        {!isAuthenticated ? (
+          <Card className="p-12 text-center">
+            <div className="flex flex-col items-center gap-4 text-muted-foreground">
+              <Lock className="w-12 h-12" />
+              <div>
+                <h3 className="text-lg font-semibold mb-2">Login Required</h3>
+                <p className="text-sm">Please login to view your payout history and create new payouts</p>
               </div>
             </div>
           </Card>
-        ))}
+        ) : filteredPayouts.length === 0 ? (
+          <Card className="p-12 text-center">
+            <div className="flex flex-col items-center gap-4 text-muted-foreground">
+              <p className="text-sm">No payouts found matching your filters</p>
+            </div>
+          </Card>
+        ) : (
+          filteredPayouts.map((payout) => (
+            <Card
+              key={payout.id}
+              className="p-4 hover:shadow-md transition-all cursor-pointer hover:border-primary/50"
+              onClick={() => onPayoutClick(payout)}
+            >
+              <div className="flex items-center justify-between">
+                <div className="flex items-start gap-4 flex-1">
+                  <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-secondary">
+                    <ArrowUpRight className="w-5 h-5 text-secondary-foreground" />
+                  </div>
+
+                  <div className="flex-1 min-w-0">
+                    <div className="mb-1">
+                      <h3 className="font-semibold text-foreground truncate">{payout.recipientName}</h3>
+                    </div>
+
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <CalendarIcon className="w-3.5 h-3.5" />
+                      <span>
+                        {new Date(payout.date).toLocaleDateString("en-US", {
+                          year: "numeric",
+                          month: "short",
+                          day: "numeric",
+                        })}{" "}
+                        at{" "}
+                        {new Date(payout.date).toLocaleTimeString("en-US", {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="text-right">
+                  <p className="text-lg font-semibold text-foreground">
+                    ${payout.amountUSD.toLocaleString("en-US", { minimumFractionDigits: 2 })}
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    {payout.amount.toLocaleString("en-US", { minimumFractionDigits: 2 })} {payout.currency}
+                  </p>
+                </div>
+              </div>
+            </Card>
+          ))
+        )}
       </div>
     </div>
   )

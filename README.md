@@ -88,10 +88,28 @@ In the long term, **Voulti Payouts** aims to serve as the foundation for:
 ```bash
 cd frontend
 npm install --include=optional --legacy-peer-deps
-npm run dev
 ```
 
 **Important:** The project uses Tailwind CSS v4 with `lightningcss`, which requires native binaries. The `.npmrc` file in the frontend directory ensures these are installed correctly.
+
+### Environment Variables
+
+Create a `.env.local` file in the `frontend` directory:
+
+```bash
+NEXT_PUBLIC_PRIVY_APP_ID=your-privy-app-id
+NEXT_PUBLIC_PRIVY_CLIENT_ID=your-privy-client-id
+```
+
+Get these values from [Privy Dashboard](https://dashboard.privy.io) after creating your app.
+
+### Run the Frontend
+
+```bash
+npm run dev
+```
+
+The app will be available at `http://localhost:3000`
 
 ### Smart Contracts
 

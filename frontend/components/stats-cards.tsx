@@ -1,13 +1,63 @@
 import { Card } from "@/components/ui/card"
-import { Wallet, DollarSign, Receipt } from "lucide-react"
+import { Wallet, DollarSign, Receipt, Lock } from "lucide-react"
 
 interface StatsCardsProps {
-  balance: number
-  totalPaid: number
-  payoutCount: number
+  balance: number | null
+  totalPaid: number | null
+  payoutCount: number | null
 }
 
 export function StatsCards({ balance, totalPaid, payoutCount }: StatsCardsProps) {
+  const isAuthenticated = balance !== null && totalPaid !== null && payoutCount !== null
+
+  if (!isAuthenticated) {
+    return (
+      <div className="grid gap-4 md:grid-cols-3">
+        {/* Balance Card */}
+        <Card className="p-6 bg-gradient-to-br from-muted to-muted/80 border-border">
+          <div className="space-y-3">
+            <div className="flex items-center gap-2 text-muted-foreground">
+              <Wallet className="w-4 h-4" />
+              <span className="text-sm font-medium">Balance</span>
+            </div>
+            <div className="flex items-center gap-2 text-muted-foreground">
+              <Lock className="w-5 h-5" />
+              <p className="text-sm">Please login to view your balance</p>
+            </div>
+          </div>
+        </Card>
+
+        {/* Total Paid Card */}
+        <Card className="p-6 border-border">
+          <div className="space-y-3">
+            <div className="flex items-center gap-2 text-muted-foreground">
+              <DollarSign className="w-4 h-4" />
+              <span className="text-sm font-medium">Total Paid</span>
+            </div>
+            <div className="flex items-center gap-2 text-muted-foreground">
+              <Lock className="w-5 h-5" />
+              <p className="text-sm">Please login to view your stats</p>
+            </div>
+          </div>
+        </Card>
+
+        {/* Payout Count Card */}
+        <Card className="p-6 border-border">
+          <div className="space-y-3">
+            <div className="flex items-center gap-2 text-muted-foreground">
+              <Receipt className="w-4 h-4" />
+              <span className="text-sm font-medium">Total Payouts</span>
+            </div>
+            <div className="flex items-center gap-2 text-muted-foreground">
+              <Lock className="w-5 h-5" />
+              <p className="text-sm">Please login to view your payouts</p>
+            </div>
+          </div>
+        </Card>
+      </div>
+    )
+  }
+
   return (
     <div className="grid gap-4 md:grid-cols-3">
       {/* Balance Card */}

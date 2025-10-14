@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { usePrivy } from "@privy-io/react-auth"
 import { DashboardHeader } from "@/components/dashboard-header"
 import { StatsCards } from "@/components/stats-cards"
 import { PayoutsList } from "@/components/payouts-list"
@@ -10,6 +11,7 @@ import { DUMMY_PAYOUTS } from "@/lib/dummy-data"
 import type { Payout } from "@/lib/types"
 
 export default function Home() {
+  const { ready, authenticated } = usePrivy()
   const [payouts, setPayouts] = useState<Payout[]>(DUMMY_PAYOUTS)
   const [balance, setBalance] = useState(50000)
   const [selectedPayout, setSelectedPayout] = useState<Payout | null>(null)
@@ -32,23 +34,40 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-background">
-      <DashboardHeader onCreatePayout={() => setIsCreateDialogOpen(true)} />
+      <DashboardHeader />
 
       <main className="container mx-auto px-4 py-8 max-w-7xl">
         <div className="space-y-8">
-          <StatsCards balance={balance} totalPaid={totalPaid} payoutCount={payoutCount} />
-          <PayoutsList payouts={payouts} onPayoutClick={handlePayoutClick} />
+          <StatsCards
+            balance={authenticated ? balance : null}
+            totalPaid={authenticated ? totalPaid : null}
+            payoutCount={authenticated ? payoutCount : null}
+          />
+          <PayoutsList
+            payouts={authenticated ? payouts : []}
+            onPayoutClick={handlePayoutClick}
+            onCreatePayout={() => setIsCreateDialogOpen(true)}
+            isAuthenticated={authenticated}
+          />
         </div>
       </main>
 
-      <CreatePayoutDialog
-        open={isCreateDialogOpen}
-        onOpenChange={setIsCreateDialogOpen}
-        onCreatePayout={handleCreatePayout}
-        currentBalance={balance}
-      />
+      {authenticated && (
+        <>
+          <CreatePayoutDialog
+            open={isCreateDialogOpen}
+            onOpenChange={setIsCreateDialogOpen}
+            onCreatePayout={handleCreatePayout}
+            currentBalance={balance}
+          />
 
-      <PayoutDetailDialog open={isDetailDialogOpen} onOpenChange={setIsDetailDialogOpen} payout={selectedPayout} />
+          <PayoutDetailDialog
+            open={isDetailDialogOpen}
+            onOpenChange={setIsDetailDialogOpen}
+            payout={selectedPayout}
+          />
+        </>
+      )}
     </div>
   )
 }
