@@ -41,6 +41,7 @@ frontend/
 ## 🏗️ Architecture Patterns
 
 ### 1. **App Router (Next.js 14+)**
+
 - Uses the new Next.js App Router (not Pages Router)
 - Server Components by default
 - Client Components marked with `"use client"`
@@ -48,16 +49,19 @@ frontend/
 ### 2. **Component Organization**
 
 #### `/components/ui/` - Primitive Components
+
 - Basic building blocks (Button, Card, Dialog, etc.)
 - Generated and managed by shadcn/ui
 - Should not contain business logic
 - Reusable across the entire app
 
 #### `/components/providers/` - Context Providers
+
 - `privy-provider.tsx`: Authentication provider wrapper
 - Wraps app at root level in `layout.tsx`
 
 #### `/components/create-payout/` - Feature Modules
+
 - Multi-step flow for creating payouts
 - `single-payout-form.tsx`: Single payout form
 - `upload-step.tsx`: Bulk CSV upload
@@ -65,6 +69,7 @@ frontend/
 - `confirmation-step.tsx`: Final confirmation
 
 #### `/components/*.tsx` - Feature Components
+
 - `dashboard-header.tsx`: Top navigation with login/logout
 - `stats-cards.tsx`: Balance and statistics display
 - `payouts-list.tsx`: Payout history with filters
@@ -73,11 +78,13 @@ frontend/
 - `theme-provider.tsx`: Dark/light mode support
 
 ### 3. **State Management**
+
 - **Local State**: `useState` for component-specific state
 - **Server State**: React hooks (no external library yet)
 - **Authentication**: Privy SDK via `usePrivy()` hook
 
 ### 4. **Styling**
+
 - **Tailwind CSS**: Utility-first CSS framework
 - **CSS Variables**: Theme tokens in `globals.css`
 - **Dark Mode**: Automatic via theme-provider
@@ -86,20 +93,24 @@ frontend/
 ## 🔑 Key Technologies
 
 ### Core Framework
+
 - **Next.js 15**: React framework with App Router
 - **React 19**: UI library
 - **TypeScript**: Type safety
 
 ### UI & Styling
+
 - **Tailwind CSS**: Utility-first styling
 - **shadcn/ui**: Component library
 - **Lucide React**: Icon library
 - **Geist Font**: Typography
 
 ### Authentication
+
 - **Privy**: Web3-native auth (email, wallet, social)
 
 ### Utilities
+
 - **date-fns**: Date manipulation
 - **clsx + tailwind-merge**: Class name utilities
 - **vaul**: Drawer component
@@ -107,23 +118,24 @@ frontend/
 ## 🔐 Authentication Flow
 
 ### Setup
+
 1. Environment variables configured in `.env`:
+
    ```bash
    NEXT_PUBLIC_PRIVY_APP_ID=your-app-id
    ```
 
 2. Provider wraps app in `layout.tsx`:
    ```tsx
-   <PrivyProviderWrapper>
-     {children}
-   </PrivyProviderWrapper>
+   <PrivyProviderWrapper>{children}</PrivyProviderWrapper>
    ```
 
 ### Usage
-```tsx
-import { usePrivy } from "@privy-io/react-auth"
 
-const { ready, authenticated, login, logout, user } = usePrivy()
+```tsx
+import { usePrivy } from "@privy-io/react-auth";
+
+const { ready, authenticated, login, logout, user } = usePrivy();
 ```
 
 - `ready`: SDK is initialized
@@ -135,6 +147,7 @@ const { ready, authenticated, login, logout, user } = usePrivy()
 ## 📊 Data Flow
 
 ### Current (Development)
+
 ```
 page.tsx (State) → Components (Props) → UI
      ↓
@@ -142,6 +155,7 @@ page.tsx (State) → Components (Props) → UI
 ```
 
 ### Future (Production)
+
 ```
 page.tsx → API Routes → Backend
               ↓
@@ -151,7 +165,9 @@ page.tsx → API Routes → Backend
 ## 🎨 Theme System
 
 ### Color Tokens
+
 Defined in `app/globals.css` using CSS variables:
+
 - `--primary`: Main brand color
 - `--secondary`: Secondary actions
 - `--accent`: Highlights and success states
@@ -159,43 +175,49 @@ Defined in `app/globals.css` using CSS variables:
 - `--destructive`: Errors and warnings
 
 ### Dark Mode
+
 Automatically managed by `theme-provider.tsx`. CSS variables update via `.dark` class.
 
 ## 📝 Type System
 
 ### Core Types (`lib/types.ts`)
+
 ```typescript
 interface Payout {
-  id: string
-  recipientName: string
-  amount: number
-  currency: string
-  amountUSD: number
-  date: string
-  status: "completed" | "pending" | "failed"
-  transactionHash?: string
+  id: string;
+  recipientName: string;
+  amount: number;
+  currency: string;
+  amountUSD: number;
+  date: string;
+  status: "completed" | "pending" | "failed";
+  transactionHash?: string;
 }
 ```
 
 ## 🔧 Development Workflow
 
 ### Install Dependencies
+
 ```bash
 npm install
 ```
 
 ### Run Development Server
+
 ```bash
 npm run dev
 ```
 
 ### Build for Production
+
 ```bash
 npm run build
 npm run start
 ```
 
 ### Code Quality
+
 - TypeScript for type checking
 - ESLint for code linting (configured in Next.js)
 
@@ -204,15 +226,17 @@ npm run start
 ### Creating New Components
 
 1. **Decide Location**:
+
    - UI primitives → `/components/ui/`
    - Feature-specific → `/components/` or feature folder
    - Reusable across features → `/components/`
 
 2. **Use TypeScript**:
+
    ```tsx
    interface ComponentProps {
-     title: string
-     onClick?: () => void
+     title: string;
+     onClick?: () => void;
    }
 
    export function Component({ title, onClick }: ComponentProps) {
@@ -221,16 +245,18 @@ npm run start
    ```
 
 3. **Client vs Server**:
+
    - Add `"use client"` if component uses:
      - `useState`, `useEffect`, or other React hooks
      - Browser APIs
      - Event handlers
 
 4. **Styling**:
+
    ```tsx
    // Use Tailwind classes
    <div className="flex items-center gap-4">
-   
+
    // Use cn() for conditional classes
    <div className={cn("base-class", isActive && "active-class")}>
    ```
@@ -240,11 +266,13 @@ npm run start
 ### Example: Adding a Settings Page
 
 1. **Create Route**:
+
    ```
    app/settings/page.tsx
    ```
 
 2. **Create Components**:
+
    ```
    components/settings/
      ├── settings-form.tsx
@@ -253,53 +281,49 @@ npm run start
    ```
 
 3. **Add Types**:
+
    ```typescript
    // lib/types.ts
    interface Settings {
-     theme: "light" | "dark"
-     notifications: boolean
+     theme: "light" | "dark";
+     notifications: boolean;
    }
    ```
 
 4. **Import in Page**:
    ```tsx
-   import { SettingsForm } from "@/components/settings/settings-form"
+   import { SettingsForm } from "@/components/settings/settings-form";
    ```
 
 ## 🔍 Common Patterns
 
 ### Conditional Rendering Based on Auth
-```tsx
-const { authenticated } = usePrivy()
 
-return (
-  <div>
-    {authenticated ? (
-      <UserDashboard />
-    ) : (
-      <LoginPrompt />
-    )}
-  </div>
-)
+```tsx
+const { authenticated } = usePrivy();
+
+return <div>{authenticated ? <UserDashboard /> : <LoginPrompt />}</div>;
 ```
 
 ### Loading States
-```tsx
-const { ready } = usePrivy()
 
-if (!ready) return <LoadingSpinner />
+```tsx
+const { ready } = usePrivy();
+
+if (!ready) return <LoadingSpinner />;
 ```
 
 ### Toast Notifications
-```tsx
-import { useToast } from "@/hooks/use-toast"
 
-const { toast } = useToast()
+```tsx
+import { useToast } from "@/hooks/use-toast";
+
+const { toast } = useToast();
 
 toast({
   title: "Success!",
-  description: "Payout created successfully"
-})
+  description: "Payout created successfully",
+});
 ```
 
 ## 📚 Resources
@@ -313,21 +337,25 @@ toast({
 ## 🐛 Troubleshooting
 
 ### "Module not found" errors
+
 ```bash
 npm install
 ```
 
 ### Styling not applying
+
 1. Check Tailwind classes are valid
 2. Clear `.next` folder: `rm -rf .next`
 3. Restart dev server
 
 ### Privy not initializing
+
 1. Check `.env` has `NEXT_PUBLIC_PRIVY_APP_ID`
 2. Restart dev server after adding env vars
 3. Check browser console for errors
 
 ### TypeScript errors
+
 ```bash
 npm run build  # Shows all type errors
 ```
@@ -335,6 +363,7 @@ npm run build  # Shows all type errors
 ## 🤝 Contributing
 
 When working on this project:
+
 1. Follow the existing file structure
 2. Keep components small and focused
 3. Add TypeScript types for props
@@ -347,4 +376,3 @@ When working on this project:
 **Last Updated**: October 2025
 **Next.js Version**: 15.x
 **React Version**: 19.x
-

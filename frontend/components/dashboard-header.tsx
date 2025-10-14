@@ -3,14 +3,15 @@
 import { Button } from "@/components/ui/button"
 import { Wallet, LogIn, LogOut } from "lucide-react"
 import { usePrivy } from "@privy-io/react-auth"
+import { MainNav } from "@/components/main-nav"
 
 export function DashboardHeader() {
   const { ready, authenticated, login, logout, user } = usePrivy()
 
   return (
-    <header className="border-b border-border bg-card">
+    <header className="border-b border-border bg-card sticky top-0 z-50">
       <div className="container mx-auto px-4 py-4 max-w-7xl">
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-3">
             <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-primary">
               <Wallet className="w-6 h-6 text-primary-foreground" />
@@ -49,6 +50,8 @@ export function DashboardHeader() {
             </Button>
           </div>
         </div>
+        
+        {authenticated && <MainNav />}
       </div>
     </header>
   )

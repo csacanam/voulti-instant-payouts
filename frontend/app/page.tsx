@@ -1,73 +1,46 @@
 "use client"
 
-import { useState } from "react"
 import { usePrivy } from "@privy-io/react-auth"
-import { DashboardHeader } from "@/components/dashboard-header"
-import { StatsCards } from "@/components/stats-cards"
-import { PayoutsList } from "@/components/payouts-list"
-import { CreatePayoutDialog } from "@/components/create-payout-dialog"
-import { PayoutDetailDialog } from "@/components/payout-detail-dialog"
-import { DUMMY_PAYOUTS } from "@/lib/dummy-data"
-import type { Payout } from "@/lib/types"
+import { QuickActions } from "@/components/quick-actions"
+import { HomeMetrics } from "@/components/home-metrics"
+import { RecentActivity } from "@/components/recent-activity"
+import { DUMMY_TRANSACTIONS } from "@/lib/dummy-data"
+import { Card } from "@/components/ui/card"
+import { Lock } from "lucide-react"
 
 export default function Home() {
-  const { ready, authenticated } = usePrivy()
-  const [payouts, setPayouts] = useState<Payout[]>(DUMMY_PAYOUTS)
-  const [balance, setBalance] = useState(50000)
-  const [selectedPayout, setSelectedPayout] = useState<Payout | null>(null)
-  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false)
-  const [isDetailDialogOpen, setIsDetailDialogOpen] = useState(false)
+  const { authenticated } = usePrivy()
 
-  const totalPaid = payouts.reduce((sum, p) => sum + p.amountUSD, 0)
-  const payoutCount = payouts.length
+  // Datos de ejemplo
+  const balance = 50000
+  const totalReceived30d = 45000
+  const totalPayouts30d = 12000
 
-  const handleCreatePayout = (newPayouts: Payout[], totalAmount: number) => {
-    setPayouts([...newPayouts, ...payouts])
-    setBalance(balance - totalAmount)
-    setIsCreateDialogOpen(false)
-  }
-
-  const handlePayoutClick = (payout: Payout) => {
-    setSelectedPayout(payout)
-    setIsDetailDialogOpen(true)
+  if (!authenticated) {
+    return (
+      <div className="space-y-8">
+        <Card className="p-12 text-center">
+          <div className="flex flex-col items-center gap-4 text-muted-foreground">
+            <Lock className="w-12 h-12" />
+            <div>
+              <h3 className="text-lg font-semibold mb-2">Login Required</h3>
+              <p className="text-sm">Please login to view your dashboard</p>
+            </div>
+          </div>
+        </Card>
+      </div>
+    )
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <DashboardHeader />
-
-      <main className="container mx-auto px-4 py-8 max-w-7xl">
-        <div className="space-y-8">
-          <StatsCards
-            balance={authenticated ? balance : null}
-            totalPaid={authenticated ? totalPaid : null}
-            payoutCount={authenticated ? payoutCount : null}
-          />
-          <PayoutsList
-            payouts={authenticated ? payouts : []}
-            onPayoutClick={handlePayoutClick}
-            onCreatePayout={() => setIsCreateDialogOpen(true)}
-            isAuthenticated={authenticated}
-          />
-        </div>
-      </main>
-
-      {authenticated && (
-        <>
-          <CreatePayoutDialog
-            open={isCreateDialogOpen}
-            onOpenChange={setIsCreateDialogOpen}
-            onCreatePayout={handleCreatePayout}
-            currentBalance={balance}
-          />
-
-          <PayoutDetailDialog
-            open={isDetailDialogOpen}
-            onOpenChange={setIsDetailDialogOpen}
-            payout={selectedPayout}
-          />
-        </>
-      )}
+    <div className="space-y-6">
+      <QuickActions />
+      <HomeMetrics
+        balance={balance}
+        totalReceived30d={totalReceived30d}
+        totalPayouts30d={totalPayouts30d}
+      />
+      <RecentActivity transactions={DUMMY_TRANSACTIONS} />
     </div>
   )
 }
