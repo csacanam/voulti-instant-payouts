@@ -5,6 +5,7 @@ Modern web application for managing instant payouts in PYUSD, settled in local s
 ## 🚀 Quick Start
 
 ### Prerequisites
+
 - Node.js 18+ installed
 - npm or yarn package manager
 - Privy App ID (get from [dashboard.privy.io](https://dashboard.privy.io))
@@ -12,34 +13,37 @@ Modern web application for managing instant payouts in PYUSD, settled in local s
 ### Installation
 
 1. **Install dependencies**
+
    ```bash
    npm install
    ```
 
 2. **Configure environment variables**
-   
+
    Create a `.env` file in this directory:
+
    ```bash
    NEXT_PUBLIC_PRIVY_APP_ID=your-privy-app-id-here
    ```
 
 3. **Run development server**
+
    ```bash
    npm run dev
    ```
 
 4. **Open in browser**
-   
+
    Navigate to [http://localhost:3000](http://localhost:3000)
 
 ## 📦 Available Scripts
 
-| Command | Description |
-|---------|-------------|
-| `npm run dev` | Start development server (hot reload) |
-| `npm run build` | Build for production |
-| `npm run start` | Start production server |
-| `npm run lint` | Run ESLint |
+| Command         | Description                           |
+| --------------- | ------------------------------------- |
+| `npm run dev`   | Start development server (hot reload) |
+| `npm run build` | Build for production                  |
+| `npm run start` | Start production server               |
+| `npm run lint`  | Run ESLint                            |
 
 ## 🏗️ Tech Stack
 
@@ -56,19 +60,31 @@ Modern web application for managing instant payouts in PYUSD, settled in local s
 ```
 frontend/
 ├── app/              # Next.js App Router pages
+│   ├── page.tsx     # Home (Quick Actions, Metrics, Activity)
+│   ├── payouts/     # Payout management
+│   ├── activity/    # Transaction history
+│   └── receive/     # Payment links & commerce link
 ├── components/       # React components
-│   ├── ui/          # Primitive UI components
+│   ├── ui/          # Primitive UI components (shadcn/ui)
+│   ├── providers/   # Context providers (Privy, Commerce)
 │   └── ...          # Feature components
+├── services/        # Backend API integration
 ├── hooks/           # Custom React hooks
 ├── lib/             # Utilities and types
-└── public/          # Static assets
+└── docs/            # Documentation
 ```
 
-For detailed architecture documentation, see [ARCHITECTURE.md](./ARCHITECTURE.md)
+**📖 Documentation:**
+
+- [PROJECT_STRUCTURE.md](./docs/PROJECT_STRUCTURE.md) - Complete architecture & conventions
+- [ARCHITECTURE.md](./ARCHITECTURE.md) - High-level overview
+- [SERVICES.md](./SERVICES.md) - Services layer guide
+- [FRONTEND_INTEGRATION.md](./docs/FRONTEND_INTEGRATION.md) - Backend API reference
 
 ## 🔐 Authentication
 
 This app uses [Privy](https://privy.io) for authentication, supporting:
+
 - 📧 Email login
 - 🔗 Wallet connection (Web3)
 - 🔑 Social login (Google, etc.)
@@ -84,6 +100,7 @@ This app uses [Privy](https://privy.io) for authentication, supporting:
 ## 🎨 Features
 
 ### Current Features
+
 - ✅ User authentication (Privy)
 - ✅ Dashboard with balance and statistics
 - ✅ Payout history with filtering
@@ -93,6 +110,7 @@ This app uses [Privy](https://privy.io) for authentication, supporting:
 - ✅ Responsive design
 
 ### Upcoming Features
+
 - 🔄 Real-time payout status updates
 - 🔄 Blockchain integration
 - 🔄 Multi-currency support
@@ -101,15 +119,18 @@ This app uses [Privy](https://privy.io) for authentication, supporting:
 ## 🧩 Key Components
 
 ### Layout Components
+
 - **DashboardHeader**: Navigation with login/logout
 - **StatsCards**: Balance and payout statistics
 
 ### Feature Components
+
 - **PayoutsList**: Filterable payout history
 - **CreatePayoutDialog**: Multi-step payout creation
 - **PayoutDetailDialog**: Individual payout details
 
 ### Providers
+
 - **PrivyProviderWrapper**: Authentication context
 - **ThemeProvider**: Dark/light mode management
 
@@ -119,12 +140,12 @@ This app uses [Privy](https://privy.io) for authentication, supporting:
 
 ```tsx
 // components/my-component.tsx
-"use client" // Only if using hooks or browser APIs
+"use client"; // Only if using hooks or browser APIs
 
-import { Button } from "@/components/ui/button"
+import { Button } from "@/components/ui/button";
 
 interface MyComponentProps {
-  title: string
+  title: string;
 }
 
 export function MyComponent({ title }: MyComponentProps) {
@@ -133,25 +154,25 @@ export function MyComponent({ title }: MyComponentProps) {
       <h2>{title}</h2>
       <Button>Click me</Button>
     </div>
-  )
+  );
 }
 ```
 
 ### Using Authentication
 
 ```tsx
-"use client"
+"use client";
 
-import { usePrivy } from "@privy-io/react-auth"
+import { usePrivy } from "@privy-io/react-auth";
 
 export function MyPage() {
-  const { authenticated, login, user } = usePrivy()
+  const { authenticated, login, user } = usePrivy();
 
   if (!authenticated) {
-    return <button onClick={login}>Login</button>
+    return <button onClick={login}>Login</button>;
   }
 
-  return <div>Welcome {user.email?.address}!</div>
+  return <div>Welcome {user.email?.address}!</div>;
 }
 ```
 
@@ -174,6 +195,7 @@ import { cn } from "@/lib/utils"
 ## 🐛 Troubleshooting
 
 ### Port already in use
+
 ```bash
 # Kill process on port 3000
 npx kill-port 3000
@@ -182,12 +204,14 @@ npm run dev -- -p 3001
 ```
 
 ### Privy not loading
+
 1. Check `.env` file exists and has `NEXT_PUBLIC_PRIVY_APP_ID`
 2. Restart dev server
 3. Clear browser cache
 4. Check browser console for errors
 
 ### Styling issues
+
 ```bash
 # Clear Next.js cache
 rm -rf .next
@@ -195,6 +219,7 @@ npm run dev
 ```
 
 ### TypeScript errors
+
 ```bash
 # Check all type errors
 npm run build
@@ -228,4 +253,3 @@ Part of the Voulti Instant Payouts project.
 ---
 
 **Need help?** Check [ARCHITECTURE.md](./ARCHITECTURE.md) for detailed documentation.
-

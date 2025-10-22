@@ -26,3 +26,6 @@ export default function ActivityPage() {
   return <ActivityList transactions={DUMMY_TRANSACTIONS} />
 }
 
+
+
+

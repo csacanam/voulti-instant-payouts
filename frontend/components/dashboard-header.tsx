@@ -1,7 +1,8 @@
 "use client"
 
+import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { Wallet, LogIn, LogOut } from "lucide-react"
+import { Wallet, LogIn, LogOut, User } from "lucide-react"
 import { usePrivy } from "@privy-io/react-auth"
 import { MainNav } from "@/components/main-nav"
 
@@ -20,10 +21,13 @@ export function DashboardHeader() {
           </div>
 
           <div className="flex items-center gap-3">
-            {authenticated && user && (
-              <div className="text-sm text-muted-foreground">
-                {user.email?.address || user.wallet?.address?.slice(0, 6) + "..." + user.wallet?.address?.slice(-4)}
-              </div>
+            {authenticated && (
+              <Link href="/account">
+                <Button variant="outline" size="lg" className="gap-2">
+                  <User className="w-5 h-5" />
+                  Account
+                </Button>
+              </Link>
             )}
 
             <Button

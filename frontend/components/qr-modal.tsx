@@ -66,3 +66,6 @@ export function QrModal({ open, onOpenChange, url }: QrModalProps) {
   )
 }
 
+
+
+
