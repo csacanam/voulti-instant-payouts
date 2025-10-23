@@ -47,11 +47,11 @@ export function useSquidSwap() {
         to: tokenAddress,
         data,
         value: "0",
-        chainId: `eip155:${chainId}`,
+        chainId: Number(chainId),
       })
 
-      console.log("Approval transaction:", tx.transactionHash)
-      return tx.transactionHash
+      console.log("Approval transaction:", tx.hash)
+      return tx.hash
     } catch (error) {
       console.error("Approval failed:", error)
       throw error
@@ -70,7 +70,18 @@ export function useSquidSwap() {
       // Step 1: Get route from Squid
       setSwapStatus({ status: "idle", message: "Getting optimal route..." })
       const routeParams = squidService.createRouteParams(payout, toAddress)
-      console.log("Squid route parameters:", routeParams)
+      
+      console.log("📋 Payout data received:", {
+        id: payout.id,
+        from_chain: payout.from_chain,
+        from_token: payout.from_token_address,
+        from_amount: payout.from_amount,
+        to_chain: payout.to_chain,
+        to_token: payout.to_token_address,
+        to_amount: payout.to_amount,
+      })
+      
+      console.log("📋 Squid route parameters:", routeParams)
 
       const { data: routeData, requestId } = await squidService.getRoute(routeParams)
       const route = routeData.route
@@ -80,10 +91,14 @@ export function useSquidSwap() {
       const transactionRequest = route.transactionRequest
 
       // Step 2: Approve token spending
+      // Convert amount to wei (smallest unit) using token decimals
+      const fromAmountInWei = Math.floor(payout.from_amount * Math.pow(10, payout.from_token_decimals))
+      console.log("💰 Approval amount in wei:", fromAmountInWei.toString())
+      
       await approveToken(
         payout.from_token_address,
         transactionRequest.target,
-        payout.from_amount.toString(),
+        fromAmountInWei.toString(),
         payout.from_chain
       )
 
@@ -93,23 +108,23 @@ export function useSquidSwap() {
         to: transactionRequest.target,
         data: transactionRequest.data,
         value: transactionRequest.value,
-        chainId: `eip155:${payout.from_chain}`,
+        chainId: Number(payout.from_chain),
       })
 
-      console.log("Swap transaction hash:", tx.transactionHash)
-      const explorerUrl = squidService.getExplorerUrl(tx.transactionHash, route)
+      console.log("Swap transaction hash:", tx.hash)
+      const explorerUrl = squidService.getExplorerUrl(tx.hash, route)
       console.log("Explorer URL:", explorerUrl)
 
       // Step 4: Poll status
       setSwapStatus({
         status: "polling",
         message: "Waiting for cross-chain transfer...",
-        txHash: tx.transactionHash,
+        txHash: tx.hash,
         explorerUrl,
       })
 
       const finalStatus = await squidService.pollStatus(
-        tx.transactionHash,
+        tx.hash,
         requestId,
         payout.from_chain.toString(),
         payout.to_chain.toString()
@@ -119,7 +134,7 @@ export function useSquidSwap() {
       const successStatus: SwapStatus = {
         status: "success",
         message: `Swap completed successfully! Status: ${finalStatus.squidTransactionStatus}`,
-        txHash: tx.transactionHash,
+        txHash: tx.hash,
         explorerUrl,
       }
 

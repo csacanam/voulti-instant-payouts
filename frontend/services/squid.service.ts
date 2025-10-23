@@ -65,6 +65,8 @@ export const squidService = {
    */
   async getRoute(params: SquidRouteParams): Promise<{ data: SquidRouteResponse; requestId: string }> {
     try {
+      console.log("🔵 Squid getRoute - Request:", JSON.stringify(params, null, 2))
+      
       const result = await axios.post(`${SQUID_API_BASE_URL}/route`, params, {
         headers: {
           "x-integrator-id": INTEGRATOR_ID,
@@ -72,12 +74,23 @@ export const squidService = {
         },
       })
       const requestId = result.headers["x-request-id"]
+      
+      console.log("✅ Squid getRoute - Success:", {
+        requestId,
+        routeFound: !!result.data.route,
+      })
+      
       return { data: result.data, requestId }
     } catch (error) {
       if (axios.isAxiosError(error) && error.response) {
-        console.error("Squid API error:", error.response.data)
+        console.error("❌ Squid API error:", {
+          status: error.response.status,
+          statusText: error.response.statusText,
+          data: error.response.data,
+          headers: error.response.headers,
+        })
       }
-      console.error("Error with parameters:", params)
+      console.error("❌ Error with parameters:", JSON.stringify(params, null, 2))
       throw error
     }
   },
@@ -133,7 +146,7 @@ export const squidService = {
     const completedStatuses = ["success", "partial_success", "needs_gas", "not_found"]
     const maxRetries = 10
     let retryCount = 0
-    let status: SquidStatusResponse
+    let status: SquidStatusResponse | undefined
 
     do {
       try {
@@ -154,10 +167,10 @@ export const squidService = {
         }
       }
 
-      if (!completedStatuses.includes(status.squidTransactionStatus)) {
+      if (status && !completedStatuses.includes(status.squidTransactionStatus)) {
         await new Promise((resolve) => setTimeout(resolve, 5000))
       }
-    } while (!completedStatuses.includes(status.squidTransactionStatus))
+    } while (!status || !completedStatuses.includes(status.squidTransactionStatus))
 
     return status
   },
@@ -169,11 +182,21 @@ export const squidService = {
    * @returns Squid route parameters
    */
   createRouteParams(payout: Payout, toAddress?: string): SquidRouteParams {
+    // Convert amount to smallest unit (wei) using token decimals
+    // e.g., 1.5 USDT with 6 decimals = 1500000
+    const fromAmountInWei = Math.floor(payout.from_amount * Math.pow(10, payout.from_token_decimals))
+    
+    console.log("💰 Amount conversion:", {
+      original: payout.from_amount,
+      decimals: payout.from_token_decimals,
+      converted: fromAmountInWei.toString(),
+    })
+    
     return {
       fromAddress: payout.from_address,
       fromChain: payout.from_chain.toString(),
       fromToken: payout.from_token_address,
-      fromAmount: payout.from_amount.toString(),
+      fromAmount: fromAmountInWei.toString(),
       toChain: payout.to_chain.toString(),
       toToken: payout.to_token_address,
       toAddress: toAddress || payout.from_address, // Use from_address as default for testing
