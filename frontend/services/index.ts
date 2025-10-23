@@ -14,6 +14,7 @@ export type { CommerceData, Commerce, CommerceResponse } from "./auth.service"
 export type { CreatePayoutData, Payout, PayoutResponse, PayoutsResponse } from "./payout.service"
 export type {
   SquidPostHook,
+  SquidPostHookCall,
   SquidRouteParams,
   SquidRouteResponse,
   SquidStatusParams,
