@@ -224,7 +224,7 @@ curl -X POST http://localhost:3000/api/commerces \
 
 ### 3. Create Payout
 
-Create a new payout transaction.
+Create a new payout transaction using bridge route configuration.
 
 ```http
 POST /api/payouts
@@ -235,58 +235,34 @@ POST /api/payouts
 ```json
 {
   "commerce_id": "550e8400-e29b-41d4-a716-446655440000",
+  "from_fiat": "USD",
+  "to_fiat": "COP",
   "from_address": "0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb",
-  "from_chain": 44787,
-  "from_chain_name": "alfajores",
-  "from_token_symbol": "cCOP",
-  "from_token_address": "0xe6A57340f0df6E020c1c0a80bC6E13048601f0d4",
-  "from_token_decimals": 18,
-  "fromAmount": 100000,
-  "fromCurrency": "COP",
-  "to_chain": 42220,
-  "to_chain_name": "celo",
-  "to_address": "0x1234567890123456789012345678901234567890",
-  "to_token_symbol": "cUSD",
-  "to_token_address": "0x874069Fa1Eb16D44d622F2e0Ca25eeA172369bC1",
-  "to_token_decimals": 18,
-  "to_amount": 25.5,
-  "toCurrency": "USD",
   "to_name": "John Doe",
   "to_email": "john@example.com",
-  "provider": "squid"
+  "to_amount": 450000.75
 }
 ```
 
 **Required Fields:**
 
-- `commerce_id` (string) - Commerce UUID
-- `from_address` (string) - Source wallet address
-- `from_chain` (number) - Source chain ID
-- `to_chain` (number) - Destination chain ID
-- `to_address` (string) - Destination wallet address
-
-**All Fields:**
-
-- `commerce_id` - Commerce identifier
+- `commerce_id` - ID of the commerce creating the payout
+- `from_fiat` - Source fiat currency (e.g., "USD")
+- `to_fiat` - Destination fiat currency (e.g., "COP")
 - `from_address` - Source wallet address
-- `from_chain` - Source blockchain chain ID (e.g., 44787)
-- `from_chain_name` - Source chain name (e.g., "alfajores")
-- `from_token_symbol` - Source token symbol (e.g., "cCOP")
-- `from_token_address` - Source token contract address
-- `from_token_decimals` - Token decimals (e.g., 18)
-- `fromAmount` - Amount in source token
-- `fromCurrency` - Source fiat currency (e.g., "COP")
-- `to_chain` - Destination blockchain chain ID
-- `to_chain_name` - Destination chain name
-- `to_address` - Destination wallet address
-- `to_token_symbol` - Destination token symbol
-- `to_token_address` - Destination token contract address
-- `to_token_decimals` - Destination token decimals
-- `to_amount` - Amount in destination token
-- `toCurrency` - Destination fiat currency
 - `to_name` - Recipient name
 - `to_email` - Recipient email
-- `provider` - Bridge provider (e.g., "squid", "lifi")
+- `to_amount` - Amount in destination currency
+
+**Optional Fields:**
+
+- `to_address` - Destination wallet address (will be provided later when user claims the payout)
+
+**Note:** The system automatically:
+
+1. Looks up the bridge route configuration based on the fiat currency pair
+2. Calculates `fromAmount` using the exchange rate from `fiat_exchange_rates` table
+3. Uses the route's blockchain details (chains, tokens, provider, etc.) for the payout
 
 **Response 201 - Created:**
 
@@ -302,19 +278,20 @@ POST /api/payouts
     "from_token_symbol": "cCOP",
     "from_token_address": "0xe6A57340f0df6E020c1c0a80bC6E13048601f0d4",
     "from_token_decimals": 18,
-    "fromAmount": 100000,
-    "fromCurrency": "COP",
+    "from_amount": 112.5,
+    "from_currency": "USD",
     "to_chain": 42220,
     "to_chain_name": "celo",
-    "to_address": "0x1234567890123456789012345678901234567890",
+    "to_address": null,
     "to_token_symbol": "cUSD",
     "to_token_address": "0x874069Fa1Eb16D44d622F2e0Ca25eeA172369bC1",
     "to_token_decimals": 18,
-    "to_amount": 25.5,
-    "toCurrency": "USD",
+    "to_amount": 450000.75,
+    "to_currency": "COP",
     "to_name": "John Doe",
     "to_email": "john@example.com",
     "provider": "squid",
+    "status": "Pending",
     "created_at": "2025-10-21T12:00:00.000Z"
   }
 }
@@ -687,6 +664,119 @@ CORS is already configured. If you still get CORS errors:
 ### 409 Conflict (Commerce Already Exists)
 
 This means the wallet is already registered. Use `GET /api/auth/commerce/:wallet` to get the existing commerce_id.
+
+---
+
+## Bridge Routes API
+
+### Get Available Bridge Routes
+
+**Endpoint:** `GET /api/bridge-routes`
+
+**Description:** Retrieves available bridge routes with optional filtering.
+
+**Query Parameters:**
+
+- `from_fiat` (optional) - Filter by source fiat currency (e.g., "USD")
+- `to_fiat` (optional) - Filter by destination fiat currency (e.g., "COP")
+- `is_active` (optional) - Filter by active status (true/false)
+
+**Example Requests:**
+
+```bash
+# Get all bridge routes
+GET /api/bridge-routes
+
+# Get routes from USD to any currency
+GET /api/bridge-routes?from_fiat=USD
+
+# Get routes from USD to COP
+GET /api/bridge-routes?from_fiat=USD&to_fiat=COP
+
+# Get only active routes
+GET /api/bridge-routes?is_active=true
+```
+
+**Response 200 - Success:**
+
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": "bridge-route-uuid",
+      "from_fiat": "USD",
+      "to_fiat": "COP",
+      "from_chain": 1,
+      "from_chain_name": "Ethereum",
+      "from_token_symbol": "USDC",
+      "from_token_address": "0xA0b86a33E6441b8C4C8C0C4C0C4C0C4C0C4C0C4C",
+      "from_token_decimals": 6,
+      "to_chain": 137,
+      "to_chain_name": "Polygon",
+      "to_token_symbol": "USDC",
+      "to_token_address": "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174",
+      "to_token_decimals": 6,
+      "provider": "LayerZero",
+      "is_active": true,
+      "created_at": "2025-10-21T12:00:00.000Z",
+      "updated_at": "2025-10-21T12:00:00.000Z"
+    }
+  ]
+}
+```
+
+### Get Specific Bridge Route
+
+**Endpoint:** `GET /api/bridge-routes/route`
+
+**Description:** Gets a specific bridge route by fiat currency pair.
+
+**Query Parameters:**
+
+- `from_fiat` (required) - Source fiat currency
+- `to_fiat` (required) - Destination fiat currency
+
+**Example Request:**
+
+```bash
+GET /api/bridge-routes/route?from_fiat=USD&to_fiat=COP
+```
+
+**Response 200 - Success:**
+
+```json
+{
+  "success": true,
+  "data": {
+    "id": "bridge-route-uuid",
+    "from_fiat": "USD",
+    "to_fiat": "COP",
+    "from_chain": 1,
+    "from_chain_name": "Ethereum",
+    "from_token_symbol": "USDC",
+    "from_token_address": "0xA0b86a33E6441b8C4C8C0C4C0C4C0C4C0C4C0C4C",
+    "from_token_decimals": 6,
+    "to_chain": 137,
+    "to_chain_name": "Polygon",
+    "to_token_symbol": "USDC",
+    "to_token_address": "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174",
+    "to_token_decimals": 6,
+    "provider": "LayerZero",
+    "is_active": true,
+    "created_at": "2025-10-21T12:00:00.000Z",
+    "updated_at": "2025-10-21T12:00:00.000Z"
+  }
+}
+```
+
+**Response 404 - Route Not Found:**
+
+```json
+{
+  "error": "No active bridge route found for USD → COP"
+}
+```
 
 ---
 

@@ -17,35 +17,38 @@ interface SinglePayoutFormProps {
 }
 
 const EXCHANGE_RATES: Record<string, number> = {
+  USD: 1,
   COP: 4200,
-  BRL: 5.5,
-  MXN: 18.5,
 }
 
 export function SinglePayoutForm({ currentBalance, onSubmit }: SinglePayoutFormProps) {
   const [formData, setFormData] = useState<CSVRow>({
     name: "",
     email: "",
-    walletAddress: "",
-    currency: "COP",
+    walletAddress: "", // Will be auto-generated
+    currency: "USD",
     amount: 0,
   })
 
   const amountUSD = formData.amount / EXCHANGE_RATES[formData.currency]
   const hasEnoughBalance = amountUSD <= currentBalance
-  const isFormValid =
-    formData.name && formData.email && formData.walletAddress && formData.currency && formData.amount > 0
+  const isFormValid = formData.name && formData.email && formData.currency && formData.amount > 0
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     if (isFormValid && hasEnoughBalance) {
-      onSubmit(formData)
+      // Auto-generate wallet address or leave empty for backend to handle
+      const payoutData = {
+        ...formData,
+        walletAddress: formData.walletAddress || `0x${Date.now().toString(16)}`, // Temporary placeholder
+      }
+      onSubmit(payoutData)
     }
   }
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6 py-4">
-      <div className="grid grid-cols-2 gap-4">
+      <div className="space-y-4">
         <div className="space-y-2">
           <Label htmlFor="name">Recipient Name</Label>
           <Input
@@ -70,17 +73,6 @@ export function SinglePayoutForm({ currentBalance, onSubmit }: SinglePayoutFormP
         </div>
       </div>
 
-      <div className="space-y-2">
-        <Label htmlFor="wallet">Wallet Address</Label>
-        <Input
-          id="wallet"
-          placeholder="0x..."
-          value={formData.walletAddress}
-          onChange={(e) => setFormData({ ...formData, walletAddress: e.target.value })}
-          required
-        />
-      </div>
-
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
           <Label htmlFor="currency">Currency</Label>
@@ -89,9 +81,8 @@ export function SinglePayoutForm({ currentBalance, onSubmit }: SinglePayoutFormP
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
+              <SelectItem value="USD">USD - US Dollar</SelectItem>
               <SelectItem value="COP">COP - Colombian Peso</SelectItem>
-              <SelectItem value="BRL">BRL - Brazilian Real</SelectItem>
-              <SelectItem value="MXN">MXN - Mexican Peso</SelectItem>
             </SelectContent>
           </Select>
         </div>

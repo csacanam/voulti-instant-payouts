@@ -23,8 +23,8 @@ export const API_ENDPOINTS = {
     // GET_PAYMENT: (id: string) => `/payments/${id}`,
   },
   PAYOUTS: {
-    // CREATE_PAYOUT: "/payouts",
-    // GET_PAYOUTS: "/payouts",
+    CREATE_PAYOUT: "/payouts",
+    GET_PAYOUTS: "/payouts",
   },
 } as const
 

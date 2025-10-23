@@ -50,7 +50,7 @@ export function CommerceProvider({ children }: { children: ReactNode }) {
 
         const commerceData = await authService.getCommerce(walletAddress)
         console.log("Commerce found:", commerceData)
-        console.log("Email:", commerceData.email)
+        console.log("Email:", commerceData.confirmation_email)
         console.log("Description English:", commerceData.description_english)
         console.log("Description Spanish:", commerceData.description_spanish)
         setCommerce(commerceData)

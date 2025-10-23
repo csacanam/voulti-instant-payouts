@@ -10,6 +10,8 @@ import { ConfirmationStep } from "@/components/create-payout/confirmation-step"
 import { SinglePayoutForm } from "@/components/create-payout/single-payout-form"
 import { CheckCircle2 } from "lucide-react"
 import type { Payout, CSVRow } from "@/lib/types"
+import { payoutService, ApiError, type CreatePayoutData } from "@/services"
+import { useCommerce } from "@/components/providers/commerce-provider"
 
 interface CreatePayoutDialogProps {
   open: boolean
@@ -21,10 +23,13 @@ interface CreatePayoutDialogProps {
 type Step = "upload" | "validation" | "confirmation"
 
 export function CreatePayoutDialog({ open, onOpenChange, onCreatePayout, currentBalance }: CreatePayoutDialogProps) {
+  const { commerce } = useCommerce()
   const [payoutType, setPayoutType] = useState<"single" | "bulk">("single")
   const [step, setStep] = useState<Step>("upload")
   const [csvData, setCsvData] = useState<CSVRow[]>([])
   const [validationErrors, setValidationErrors] = useState<number[]>([])
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   const handleUpload = (data: CSVRow[], errors: number[]) => {
     setCsvData(data)
@@ -32,41 +37,109 @@ export function CreatePayoutDialog({ open, onOpenChange, onCreatePayout, current
     setStep(errors.length > 0 ? "validation" : "confirmation")
   }
 
-  const handleConfirm = () => {
-    const newPayouts: Payout[] = csvData.map((row, index) => ({
-      id: `payout-${Date.now()}-${index}`,
-      recipientName: row.name,
-      email: row.email,
-      walletAddress: row.walletAddress,
-      currency: row.currency,
-      amount: row.amount,
-      amountUSD: row.amount / getExchangeRate(row.currency),
-      date: new Date().toISOString(),
-      status: "completed",
-      txHash: `0x${Math.random().toString(16).substring(2, 66)}`,
-    }))
-
-    const totalUSD = newPayouts.reduce((sum, p) => sum + p.amountUSD, 0)
-    onCreatePayout(newPayouts, totalUSD)
-    handleClose()
-  }
-
-  const handleSinglePayout = (data: CSVRow) => {
-    const newPayout: Payout = {
-      id: `payout-${Date.now()}`,
-      recipientName: data.name,
-      email: data.email,
-      walletAddress: data.walletAddress,
-      currency: data.currency,
-      amount: data.amount,
-      amountUSD: data.amount / getExchangeRate(data.currency),
-      date: new Date().toISOString(),
-      status: "completed",
-      txHash: `0x${Math.random().toString(16).substring(2, 66)}`,
+  const handleConfirm = async () => {
+    if (!commerce) {
+      setError("Commerce not found")
+      return
     }
 
-    onCreatePayout([newPayout], newPayout.amountUSD)
-    handleClose()
+    setLoading(true)
+    setError(null)
+
+    try {
+      // Create payouts via API
+      const payoutPromises = csvData.map((row) => {
+        const payoutData: CreatePayoutData = {
+          commerce_id: commerce.commerce_id,
+          from_fiat: "USD",
+          to_fiat: row.currency,
+          from_address: commerce.wallet,
+          to_name: row.name,
+          to_email: row.email,
+          to_amount: row.amount,
+        }
+        return payoutService.createPayout(payoutData)
+      })
+
+      const createdPayouts = await Promise.all(payoutPromises)
+
+      // Convert to frontend format for display
+      const newPayouts: Payout[] = createdPayouts.map((payout) => ({
+        id: payout.id,
+        recipientName: payout.to_name,
+        email: payout.to_email,
+        walletAddress: payout.to_address || "",
+        currency: payout.to_currency,
+        amount: payout.to_amount,
+        amountUSD: payout.from_amount,
+        date: payout.created_at,
+        status: payout.status.toLowerCase(),
+        txHash: `0x${Math.random().toString(16).substring(2, 66)}`,
+      }))
+
+      const totalUSD = newPayouts.reduce((sum, p) => sum + p.amountUSD, 0)
+      onCreatePayout(newPayouts, totalUSD)
+      handleClose()
+    } catch (err) {
+      console.error("Failed to create payouts:", err)
+      if (err instanceof ApiError) {
+        setError(`Error ${err.status}: ${err.message}`)
+      } else {
+        setError(err instanceof Error ? err.message : "Failed to create payouts")
+      }
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleSinglePayout = async (data: CSVRow) => {
+    if (!commerce) {
+      setError("Commerce not found")
+      return
+    }
+
+    setLoading(true)
+    setError(null)
+
+    try {
+      const payoutData: CreatePayoutData = {
+        commerce_id: commerce.commerce_id,
+        from_fiat: "USD",
+        to_fiat: data.currency,
+        from_address: commerce.wallet,
+        to_name: data.name,
+        to_email: data.email,
+        to_amount: data.amount,
+      }
+
+      const createdPayout = await payoutService.createPayout(payoutData)
+
+      // Convert to frontend format for display
+      const newPayout: Payout = {
+        id: createdPayout.id,
+        recipientName: createdPayout.to_name,
+        email: createdPayout.to_email,
+        walletAddress: createdPayout.to_address || "",
+        currency: createdPayout.to_currency,
+        amount: createdPayout.to_amount,
+        amountUSD: createdPayout.from_amount,
+        date: createdPayout.created_at,
+        status: createdPayout.status.toLowerCase(),
+        txHash: `0x${Math.random().toString(16).substring(2, 66)}`,
+      }
+
+      onCreatePayout([newPayout], newPayout.amountUSD)
+      handleClose()
+    } catch (err) {
+      console.error("Failed to create payout:", err)
+      if (err instanceof ApiError) {
+        setError(`Error ${err.status}: ${err.message}`)
+      } else {
+        setError(err instanceof Error ? err.message : "Failed to create payout")
+      }
+    } finally {
+      setLoading(false)
+    }
   }
 
   const handleClose = () => {
@@ -74,6 +147,8 @@ export function CreatePayoutDialog({ open, onOpenChange, onCreatePayout, current
     setCsvData([])
     setValidationErrors([])
     setPayoutType("single")
+    setError(null)
+    setLoading(false)
     onOpenChange(false)
   }
 
@@ -91,26 +166,23 @@ export function CreatePayoutDialog({ open, onOpenChange, onCreatePayout, current
           <Tabs value={payoutType} onValueChange={(v) => setPayoutType(v as "single" | "bulk")} className="w-full">
             <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="single">Single Payout</TabsTrigger>
-              <TabsTrigger value="bulk">Bulk Payout</TabsTrigger>
+              <TabsTrigger value="bulk" disabled>
+                Bulk Payout
+                <span className="ml-2 text-xs">(Coming Soon)</span>
+              </TabsTrigger>
             </TabsList>
 
             <TabsContent value="single" className="mt-4">
+              {error && (
+                <div className="mb-4 p-3 bg-destructive/10 border border-destructive/20 rounded-lg">
+                  <p className="text-sm text-destructive">{error}</p>
+                </div>
+              )}
               <SinglePayoutForm currentBalance={currentBalance} onSubmit={handleSinglePayout} />
             </TabsContent>
 
             <TabsContent value="bulk" className="mt-4">
-              {step === "upload" && <UploadStep onUpload={handleUpload} />}
-
-              {step === "validation" && (
-                <ValidationStep csvData={csvData} errors={validationErrors} />
-              )}
-
-              {step === "confirmation" && (
-                <ConfirmationStep
-                  csvData={csvData}
-                  currentBalance={currentBalance}
-                />
-              )}
+              {/* Bulk payout disabled for now */}
             </TabsContent>
           </Tabs>
         </div>
@@ -147,9 +219,8 @@ export function CreatePayoutDialog({ open, onOpenChange, onCreatePayout, current
 
 function getExchangeRate(currency: string): number {
   const rates: Record<string, number> = {
+    USD: 1,
     COP: 4200,
-    BRL: 5.5,
-    MXN: 18.5,
   }
   return rates[currency] || 1
 }
