@@ -89,9 +89,13 @@ frontend/
     ├── components.json          # shadcn/ui config
     ├── .env                     # Environment variables
     ├── README.md                # Quick start guide
-    ├── ARCHITECTURE.md          # Architecture overview
-    ├── SERVICES.md              # Services layer guide
-    └── ENVIRONMENT_VARIABLES.md # Environment setup
+    ├── ENVIRONMENT_VARIABLES.md # Environment setup
+    └── docs/                    # Documentation
+        ├── ARCHITECTURE.md      # Architecture overview
+        ├── SERVICES.md          # Services layer guide
+        ├── PROJECT_STRUCTURE.md # This document
+        ├── FRONTEND_INTEGRATION.md # Backend API reference
+        └── TEMPORARY_CONFIG.md  # Temporary development config
 ```
 
 ---
@@ -972,8 +976,8 @@ return (
 
 ## 📚 Related Documentation
 
-- [ARCHITECTURE.md](../ARCHITECTURE.md) - High-level architecture overview
-- [SERVICES.md](../SERVICES.md) - Services layer deep dive
+- [ARCHITECTURE.md](./ARCHITECTURE.md) - High-level architecture overview
+- [SERVICES.md](./SERVICES.md) - Services layer deep dive
 - [FRONTEND_INTEGRATION.md](./FRONTEND_INTEGRATION.md) - Backend API reference
 - [ENVIRONMENT_VARIABLES.md](../ENVIRONMENT_VARIABLES.md) - Environment setup
 - [README.md](../README.md) - Quick start guide

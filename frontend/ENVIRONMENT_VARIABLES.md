@@ -10,6 +10,11 @@ NEXT_PUBLIC_PRIVY_APP_ID=your-privy-app-id-here
 # Backend API
 # URL of your backend API (include /api path)
 NEXT_PUBLIC_API_BASE_URL=http://localhost:3000/api
+
+# Squid Router (Optional)
+# Get this value from https://v2.app.squidrouter.com/
+# Default: voulti-instant-payouts
+NEXT_PUBLIC_SQUID_INTEGRATOR_ID=your-squid-integrator-id-here
 ```
 
 ## How to configure:

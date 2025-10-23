@@ -8,11 +8,32 @@ import { CreatePayoutDialog } from "@/components/create-payout-dialog"
 import { PayoutDetailDialog } from "@/components/payout-detail-dialog"
 import { DUMMY_PAYOUTS } from "@/lib/dummy-data"
 import type { Payout } from "@/lib/types"
+import { useCommerce } from "@/components/providers/commerce-provider"
+import { useTokenBalance } from "@/hooks/use-token-balance"
+
+// pyUSD on Arbitrum configuration
+const PYUSD_ARBITRUM_ADDRESS = "0x46850aD61C2B7d64d08c9C754F45254596696984"
+const ARBITRUM_RPC_URL = "https://arb1.arbitrum.io/rpc"
+const ARBITRUM_CHAIN_ID = 42161
 
 export default function PayoutsPage() {
   const { authenticated } = usePrivy()
+  const { commerce } = useCommerce()
   const [payouts, setPayouts] = useState<Payout[]>(DUMMY_PAYOUTS)
-  const [balance, setBalance] = useState(50000)
+  
+  // Get real pyUSD balance from Arbitrum
+  const { balance: pyUsdBalance, loading: balanceLoading } = useTokenBalance(
+    commerce
+      ? {
+          tokenAddress: PYUSD_ARBITRUM_ADDRESS,
+          walletAddress: commerce.wallet,
+          chainId: ARBITRUM_CHAIN_ID,
+          rpcUrl: ARBITRUM_RPC_URL,
+        }
+      : null
+  )
+  
+  const balance = pyUsdBalance ?? 0
   const [selectedPayout, setSelectedPayout] = useState<Payout | null>(null)
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false)
   const [isDetailDialogOpen, setIsDetailDialogOpen] = useState(false)
@@ -22,8 +43,8 @@ export default function PayoutsPage() {
 
   const handleCreatePayout = (newPayouts: Payout[], totalAmount: number) => {
     setPayouts([...newPayouts, ...payouts])
-    setBalance(balance - totalAmount)
     setIsCreateDialogOpen(false)
+    // Balance will auto-refresh from blockchain via useTokenBalance hook
   }
 
   const handlePayoutClick = (payout: Payout) => {

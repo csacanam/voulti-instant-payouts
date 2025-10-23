@@ -5,11 +5,13 @@ import { usePathname } from "next/navigation"
 import { Home, Receipt, Activity, QrCode } from "lucide-react"
 import { cn } from "@/lib/utils"
 
+// TEMPORARY: Only Payouts menu visible for development
+// To restore all menus, see docs/TEMPORARY_CONFIG.md
 const navItems = [
-  { href: "/", label: "Home", icon: Home },
-  { href: "/receive", label: "Receive", icon: QrCode },
+  // { href: "/", label: "Home", icon: Home }, // HIDDEN: Temporarily disabled
+  // { href: "/receive", label: "Receive", icon: QrCode }, // HIDDEN: Temporarily disabled
   { href: "/payouts", label: "Payouts", icon: Receipt },
-  { href: "/activity", label: "Activity", icon: Activity },
+  // { href: "/activity", label: "Activity", icon: Activity }, // HIDDEN: Temporarily disabled
 ]
 
 export function MainNav() {

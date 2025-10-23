@@ -12,6 +12,7 @@ import { CheckCircle2 } from "lucide-react"
 import type { Payout, CSVRow } from "@/lib/types"
 import { payoutService, ApiError, type CreatePayoutData } from "@/services"
 import { useCommerce } from "@/components/providers/commerce-provider"
+import { useSquidSwap } from "@/hooks/use-squid-swap"
 
 interface CreatePayoutDialogProps {
   open: boolean
@@ -24,6 +25,7 @@ type Step = "upload" | "validation" | "confirmation"
 
 export function CreatePayoutDialog({ open, onOpenChange, onCreatePayout, currentBalance }: CreatePayoutDialogProps) {
   const { commerce } = useCommerce()
+  const { executeSwap, swapStatus, setSwapStatus } = useSquidSwap()
   const [payoutType, setPayoutType] = useState<"single" | "bulk">("single")
   const [step, setStep] = useState<Step>("upload")
   const [csvData, setCsvData] = useState<CSVRow[]>([])
@@ -102,6 +104,8 @@ export function CreatePayoutDialog({ open, onOpenChange, onCreatePayout, current
     setError(null)
 
     try {
+      // Step 1: Create payout in database
+      console.log("Step 1: Creating payout in database...")
       const payoutData: CreatePayoutData = {
         commerce_id: commerce.commerce_id,
         from_fiat: "USD",
@@ -113,6 +117,18 @@ export function CreatePayoutDialog({ open, onOpenChange, onCreatePayout, current
       }
 
       const createdPayout = await payoutService.createPayout(payoutData)
+      console.log("✅ Payout created in database:", createdPayout.id)
+
+      // Step 2: Execute Squid swap with created payout
+      console.log("Step 2: Executing Squid swap...")
+      const swapResult = await executeSwap(createdPayout)
+
+      if (swapResult.status === "error") {
+        setError(`Payout created but swap failed: ${swapResult.message}`)
+        return
+      }
+
+      console.log("✅ Squid swap completed:", swapResult.txHash)
 
       // Convert to frontend format for display
       const newPayout: Payout = {
@@ -124,8 +140,8 @@ export function CreatePayoutDialog({ open, onOpenChange, onCreatePayout, current
         amount: createdPayout.to_amount,
         amountUSD: createdPayout.from_amount,
         date: createdPayout.created_at,
-        status: createdPayout.status.toLowerCase(),
-        txHash: `0x${Math.random().toString(16).substring(2, 66)}`,
+        status: "completed", // Update status after successful swap
+        txHash: swapResult.txHash || `0x${Math.random().toString(16).substring(2, 66)}`,
       }
 
       onCreatePayout([newPayout], newPayout.amountUSD)
@@ -149,6 +165,10 @@ export function CreatePayoutDialog({ open, onOpenChange, onCreatePayout, current
     setPayoutType("single")
     setError(null)
     setLoading(false)
+    // Reset swap status
+    if (swapStatus.status !== "idle") {
+      setSwapStatus({ status: "idle", message: "" })
+    }
     onOpenChange(false)
   }
 
@@ -178,6 +198,69 @@ export function CreatePayoutDialog({ open, onOpenChange, onCreatePayout, current
                   <p className="text-sm text-destructive">{error}</p>
                 </div>
               )}
+              
+              {swapStatus.status !== "idle" && (
+                <div className="mb-4 p-4 bg-muted rounded-lg border">
+                  <div className="flex items-center gap-3">
+                    {swapStatus.status === "approving" && (
+                      <>
+                        <div className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+                        <div>
+                          <p className="text-sm font-medium">Approving tokens...</p>
+                          <p className="text-xs text-muted-foreground">Please confirm in your wallet</p>
+                        </div>
+                      </>
+                    )}
+                    {swapStatus.status === "swapping" && (
+                      <>
+                        <div className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+                        <div>
+                          <p className="text-sm font-medium">Executing swap...</p>
+                          <p className="text-xs text-muted-foreground">Please confirm transaction in your wallet</p>
+                        </div>
+                      </>
+                    )}
+                    {swapStatus.status === "polling" && (
+                      <>
+                        <div className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+                        <div>
+                          <p className="text-sm font-medium">Processing cross-chain transfer...</p>
+                          <p className="text-xs text-muted-foreground">This may take a few minutes</p>
+                          {swapStatus.explorerUrl && (
+                            <a 
+                              href={swapStatus.explorerUrl} 
+                              target="_blank" 
+                              rel="noopener noreferrer"
+                              className="text-xs text-primary hover:underline"
+                            >
+                              View on explorer →
+                            </a>
+                          )}
+                        </div>
+                      </>
+                    )}
+                    {swapStatus.status === "success" && (
+                      <>
+                        <CheckCircle2 className="w-5 h-5 text-green-600" />
+                        <div>
+                          <p className="text-sm font-medium text-green-600">Swap completed!</p>
+                          {swapStatus.explorerUrl && (
+                            <a 
+                              href={swapStatus.explorerUrl} 
+                              target="_blank" 
+                              rel="noopener noreferrer"
+                              className="text-xs text-primary hover:underline"
+                            >
+                              View transaction →
+                            </a>
+                          )}
+                        </div>
+                      </>
+                    )}
+                  </div>
+                </div>
+              )}
+              
               <SinglePayoutForm currentBalance={currentBalance} onSubmit={handleSinglePayout} />
             </TabsContent>
 

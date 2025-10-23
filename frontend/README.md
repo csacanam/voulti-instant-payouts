@@ -77,8 +77,8 @@ frontend/
 **📖 Documentation:**
 
 - [PROJECT_STRUCTURE.md](./docs/PROJECT_STRUCTURE.md) - Complete architecture & conventions
-- [ARCHITECTURE.md](./ARCHITECTURE.md) - High-level overview
-- [SERVICES.md](./SERVICES.md) - Services layer guide
+- [ARCHITECTURE.md](./docs/ARCHITECTURE.md) - High-level overview
+- [SERVICES.md](./docs/SERVICES.md) - Services layer guide
 - [FRONTEND_INTEGRATION.md](./docs/FRONTEND_INTEGRATION.md) - Backend API reference
 
 ## 🔐 Authentication
@@ -231,7 +231,7 @@ npm run build
 - **Tailwind CSS**: [tailwindcss.com/docs](https://tailwindcss.com/docs)
 - **shadcn/ui**: [ui.shadcn.com](https://ui.shadcn.com)
 - **Privy**: [docs.privy.io](https://docs.privy.io)
-- **Architecture**: [ARCHITECTURE.md](./ARCHITECTURE.md)
+- **Architecture**: [ARCHITECTURE.md](./docs/ARCHITECTURE.md)
 
 ## 🤝 Contributing
 
@@ -252,4 +252,4 @@ Part of the Voulti Instant Payouts project.
 
 ---
 
-**Need help?** Check [ARCHITECTURE.md](./ARCHITECTURE.md) for detailed documentation.
+**Need help?** Check [ARCHITECTURE.md](./docs/ARCHITECTURE.md) for detailed documentation.
