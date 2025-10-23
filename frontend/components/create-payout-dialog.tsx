@@ -13,6 +13,7 @@ import type { Payout, CSVRow } from "@/lib/types"
 import { payoutService, ApiError, type CreatePayoutData } from "@/services"
 import { useCommerce } from "@/components/providers/commerce-provider"
 import { useSquidSwap } from "@/hooks/use-squid-swap"
+import { useToast } from "@/hooks/use-toast"
 
 interface CreatePayoutDialogProps {
   open: boolean
@@ -26,12 +27,14 @@ type Step = "upload" | "validation" | "confirmation"
 export function CreatePayoutDialog({ open, onOpenChange, onCreatePayout, currentBalance }: CreatePayoutDialogProps) {
   const { commerce } = useCommerce()
   const { executeSwap, swapStatus, setSwapStatus } = useSquidSwap()
+  const { toast } = useToast()
   const [payoutType, setPayoutType] = useState<"single" | "bulk">("single")
   const [step, setStep] = useState<Step>("upload")
   const [csvData, setCsvData] = useState<CSVRow[]>([])
   const [validationErrors, setValidationErrors] = useState<number[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [isProcessing, setIsProcessing] = useState(false)
 
   const handleUpload = (data: CSVRow[], errors: number[]) => {
     setCsvData(data)
@@ -100,6 +103,7 @@ export function CreatePayoutDialog({ open, onOpenChange, onCreatePayout, current
       return
     }
 
+    setIsProcessing(true)
     setLoading(true)
     setError(null)
 
@@ -124,7 +128,12 @@ export function CreatePayoutDialog({ open, onOpenChange, onCreatePayout, current
       const swapResult = await executeSwap(createdPayout)
 
       if (swapResult.status === "error") {
-        setError(`Payout created but swap failed: ${swapResult.message}`)
+        setIsProcessing(false)
+        toast({
+          title: "Payment Failed",
+          description: swapResult.message || "The payment could not be processed. Please try again.",
+          variant: "destructive",
+        })
         return
       }
 
@@ -145,41 +154,78 @@ export function CreatePayoutDialog({ open, onOpenChange, onCreatePayout, current
       }
 
       onCreatePayout([newPayout], newPayout.amountUSD)
+      
+      // Show success toast
+      toast({
+        title: "Payout Created Successfully! 🎉",
+        description: `${data.amount} ${data.currency} sent to ${data.name}`,
+        variant: "default",
+      })
+      
+      // Close dialog after success
       handleClose()
     } catch (err) {
       console.error("Failed to create payout:", err)
+      setIsProcessing(false)
+      
+      let errorMessage = "Failed to create payout"
       if (err instanceof ApiError) {
-        setError(`Error ${err.status}: ${err.message}`)
-      } else {
-        setError(err instanceof Error ? err.message : "Failed to create payout")
+        errorMessage = `Error ${err.status}: ${err.message}`
+      } else if (err instanceof Error) {
+        errorMessage = err.message
       }
+      
+      toast({
+        title: "Payout Failed",
+        description: errorMessage,
+        variant: "destructive",
+      })
     } finally {
       setLoading(false)
     }
   }
 
   const handleClose = () => {
+    // Don't allow closing while processing
+    if (isProcessing) {
+      return
+    }
+    
     setStep("upload")
     setCsvData([])
     setValidationErrors([])
     setPayoutType("single")
     setError(null)
     setLoading(false)
-    // Reset swap status
-    if (swapStatus.status !== "idle") {
+    setIsProcessing(false)
+    onOpenChange(false)
+  }
+
+  // Reset swap status when dialog opens/closes
+  const handleOpenChange = (open: boolean) => {
+    if (!open) {
+      handleClose()
+    } else {
+      // Clean up swap status when opening
       setSwapStatus({ status: "idle", message: "" })
     }
-    onOpenChange(false)
   }
 
   const totalUSD = csvData.reduce((sum, row) => sum + row.amount / getExchangeRate(row.currency), 0)
   const hasEnoughBalance = totalUSD <= currentBalance
 
   return (
-    <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="max-w-3xl max-h-[90vh] flex flex-col">
+    <Dialog open={open} onOpenChange={handleOpenChange}>
+      <DialogContent className="max-w-3xl max-h-[90vh] flex flex-col" onInteractOutside={(e) => {
+        // Prevent closing when processing
+        if (isProcessing) {
+          e.preventDefault()
+        }
+      }}>
         <DialogHeader className="flex-shrink-0">
-          <DialogTitle className="text-2xl">Create New Payout</DialogTitle>
+          <DialogTitle className="text-2xl">
+            {isProcessing ? "Processing Payout..." : "Create New Payout"}
+          </DialogTitle>
         </DialogHeader>
 
         <div className="flex-1 overflow-y-auto">
@@ -193,12 +239,6 @@ export function CreatePayoutDialog({ open, onOpenChange, onCreatePayout, current
             </TabsList>
 
             <TabsContent value="single" className="mt-4">
-              {error && (
-                <div className="mb-4 p-3 bg-destructive/10 border border-destructive/20 rounded-lg">
-                  <p className="text-sm text-destructive">{error}</p>
-                </div>
-              )}
-              
               {swapStatus.status !== "idle" && (
                 <div className="mb-4 p-4 bg-muted rounded-lg border">
                   <div className="flex items-center gap-3">
@@ -206,7 +246,7 @@ export function CreatePayoutDialog({ open, onOpenChange, onCreatePayout, current
                       <>
                         <div className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin" />
                         <div>
-                          <p className="text-sm font-medium">Approving tokens...</p>
+                          <p className="text-sm font-medium">Step 1/3: Preparing payment...</p>
                           <p className="text-xs text-muted-foreground">Please confirm in your wallet</p>
                         </div>
                       </>
@@ -215,8 +255,8 @@ export function CreatePayoutDialog({ open, onOpenChange, onCreatePayout, current
                       <>
                         <div className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin" />
                         <div>
-                          <p className="text-sm font-medium">Executing swap...</p>
-                          <p className="text-xs text-muted-foreground">Please confirm transaction in your wallet</p>
+                          <p className="text-sm font-medium">Step 2/3: Processing payment...</p>
+                          <p className="text-xs text-muted-foreground">Please confirm the transaction in your wallet</p>
                         </div>
                       </>
                     )}
@@ -224,34 +264,16 @@ export function CreatePayoutDialog({ open, onOpenChange, onCreatePayout, current
                       <>
                         <div className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin" />
                         <div>
-                          <p className="text-sm font-medium">Processing cross-chain transfer...</p>
-                          <p className="text-xs text-muted-foreground">This may take a few minutes</p>
+                          <p className="text-sm font-medium">Step 3/3: Finalizing payment...</p>
+                          <p className="text-xs text-muted-foreground">Almost done, this may take a minute</p>
                           {swapStatus.explorerUrl && (
                             <a 
                               href={swapStatus.explorerUrl} 
                               target="_blank" 
                               rel="noopener noreferrer"
-                              className="text-xs text-primary hover:underline"
+                              className="text-xs text-primary hover:underline cursor-pointer"
                             >
-                              View on explorer →
-                            </a>
-                          )}
-                        </div>
-                      </>
-                    )}
-                    {swapStatus.status === "success" && (
-                      <>
-                        <CheckCircle2 className="w-5 h-5 text-green-600" />
-                        <div>
-                          <p className="text-sm font-medium text-green-600">Swap completed!</p>
-                          {swapStatus.explorerUrl && (
-                            <a 
-                              href={swapStatus.explorerUrl} 
-                              target="_blank" 
-                              rel="noopener noreferrer"
-                              className="text-xs text-primary hover:underline"
-                            >
-                              View transaction →
+                              View transaction details →
                             </a>
                           )}
                         </div>
@@ -261,7 +283,11 @@ export function CreatePayoutDialog({ open, onOpenChange, onCreatePayout, current
                 </div>
               )}
               
-              <SinglePayoutForm currentBalance={currentBalance} onSubmit={handleSinglePayout} />
+              <SinglePayoutForm 
+                currentBalance={currentBalance} 
+                onSubmit={handleSinglePayout}
+                disabled={isProcessing}
+              />
             </TabsContent>
 
             <TabsContent value="bulk" className="mt-4">

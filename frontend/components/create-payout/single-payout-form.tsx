@@ -14,6 +14,7 @@ import type { CSVRow } from "@/lib/types"
 interface SinglePayoutFormProps {
   currentBalance: number
   onSubmit: (data: CSVRow) => void
+  disabled?: boolean
 }
 
 const EXCHANGE_RATES: Record<string, number> = {
@@ -21,7 +22,7 @@ const EXCHANGE_RATES: Record<string, number> = {
   COP: 4200,
 }
 
-export function SinglePayoutForm({ currentBalance, onSubmit }: SinglePayoutFormProps) {
+export function SinglePayoutForm({ currentBalance, onSubmit, disabled = false }: SinglePayoutFormProps) {
   const [formData, setFormData] = useState<CSVRow>({
     name: "",
     email: "",
@@ -57,6 +58,7 @@ export function SinglePayoutForm({ currentBalance, onSubmit }: SinglePayoutFormP
             value={formData.name}
             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
             required
+            disabled={disabled}
           />
         </div>
 
@@ -69,6 +71,7 @@ export function SinglePayoutForm({ currentBalance, onSubmit }: SinglePayoutFormP
             value={formData.email}
             onChange={(e) => setFormData({ ...formData, email: e.target.value })}
             required
+            disabled={disabled}
           />
         </div>
       </div>
@@ -76,7 +79,11 @@ export function SinglePayoutForm({ currentBalance, onSubmit }: SinglePayoutFormP
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
           <Label htmlFor="currency">Currency</Label>
-          <Select value={formData.currency} onValueChange={(value) => setFormData({ ...formData, currency: value })}>
+          <Select 
+            value={formData.currency} 
+            onValueChange={(value) => setFormData({ ...formData, currency: value })}
+            disabled={disabled}
+          >
             <SelectTrigger id="currency">
               <SelectValue />
             </SelectTrigger>
@@ -96,6 +103,7 @@ export function SinglePayoutForm({ currentBalance, onSubmit }: SinglePayoutFormP
             value={formData.amount || ""}
             onChange={(e) => setFormData({ ...formData, amount: Number.parseFloat(e.target.value) || 0 })}
             required
+            disabled={disabled}
           />
         </div>
       </div>
@@ -131,9 +139,23 @@ export function SinglePayoutForm({ currentBalance, onSubmit }: SinglePayoutFormP
         </Alert>
       )}
 
-      <Button type="submit" disabled={!isFormValid || !hasEnoughBalance} size="lg" className="w-full gap-2">
-        <CheckCircle2 className="w-5 h-5" />
-        Create Payout
+      <Button 
+        type="submit" 
+        disabled={!isFormValid || !hasEnoughBalance || disabled} 
+        size="lg" 
+        className="w-full gap-2 cursor-pointer"
+      >
+        {disabled ? (
+          <>
+            <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+            Processing...
+          </>
+        ) : (
+          <>
+            <CheckCircle2 className="w-5 h-5" />
+            Create Payout
+          </>
+        )}
       </Button>
     </form>
   )

@@ -63,7 +63,7 @@ export function PayoutsList({ payouts, onPayoutClick, onCreatePayout, isAuthenti
               <Badge variant="secondary" className="text-sm">
                 {filteredPayouts.length} payouts
               </Badge>
-              <Button onClick={onCreatePayout} size="lg" className="gap-2">
+              <Button onClick={onCreatePayout} size="lg" className="gap-2 cursor-pointer">
                 <Plus className="w-5 h-5" />
                 Create Payout
               </Button>

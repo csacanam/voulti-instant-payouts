@@ -32,7 +32,7 @@ export function DashboardHeader() {
 
             {authenticated && (
               <Link href="/account">
-                <Button variant="outline" size="lg" className="gap-2">
+                <Button variant="outline" size="lg" className="gap-2 cursor-pointer">
                   <User className="w-5 h-5" />
                   Account
                 </Button>
@@ -43,7 +43,7 @@ export function DashboardHeader() {
               onClick={authenticated ? logout : login}
               size="lg"
               variant={authenticated ? "outline" : "default"}
-              className="gap-2"
+              className="gap-2 cursor-pointer"
               disabled={!ready}
             >
               {authenticated ? (
