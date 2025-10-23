@@ -66,6 +66,12 @@ forge install
 forge build
 ```
 
+## Quick Links
+
+- 📖 **[Deployment Guide](./DEPLOYMENT.md)** - Complete deployment workflow
+- 🔄 **[Frontend Integration](../frontend/blockchain/README.md)** - How to use ABIs and vault addresses in frontend
+- 📋 **[ABI Export Script](./scripts/copy-abis.sh)** - Auto-copy ABIs to frontend
+
 ## Testing
 
 Run the complete test suite:
@@ -89,10 +95,14 @@ forge coverage
 
 **Current Test Results:**
 
-- PayoutVault: 8/8 tests passing ✅
+- PayoutVault: 18/18 tests passing ✅
 - All security checks included
+- Double-claim prevention
+- Cross-commerce attack prevention
 
 ## Deployment
+
+> 📖 **For complete deployment instructions, see [DEPLOYMENT.md](./DEPLOYMENT.md)**
 
 ### Setup Environment
 

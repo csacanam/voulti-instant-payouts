@@ -22,9 +22,9 @@ export const VAULTS: Record<string, Record<string, VaultConfig>> = {
   // Celo Mainnet (42220)
   celo: {
     cCOP: {
-      address: "0x0000000000000000000000000000000000000000", // TODO: Deploy and update
+      address: "0x77e94a9BC69409150Ca3a407Da6383CC626e7CC8", // Deployed on Celo Mainnet
       token: {
-        address: "0x8A567e2aE79CA692Bd748aB832081C45de4041eA",
+        address: "0x8A567e2aE79CA692Bd748aB832081C45de4041eA", // cCOP token on Celo
         symbol: "cCOP",
         decimals: 18,
       },
@@ -34,9 +34,9 @@ export const VAULTS: Record<string, Record<string, VaultConfig>> = {
       },
     },
     cREAL: {
-      address: "0x0000000000000000000000000000000000000000", // TODO: Deploy and update
+      address: "0x60Eb87BDa27917889B1ED651b3008a9d5cD38833", // Deployed on Celo Mainnet
       token: {
-        address: "0xe8537a3d056DA446677B9E9d6c5dB704EaAb4787",
+        address: "0xe8537a3d056DA446677B9E9d6c5dB704EaAb4787", //cREAL token on Celo
         symbol: "cREAL",
         decimals: 18,
       },
@@ -49,12 +49,12 @@ export const VAULTS: Record<string, Record<string, VaultConfig>> = {
 
   // Arbitrum One (42161)
   arbitrum: {
-    mxnB: {
-      address: "0x0000000000000000000000000000000000000000", // TODO: Deploy and update
+    MXNB: {
+      address: "0x77e94a9BC69409150Ca3a407Da6383CC626e7CC8", // Deployed on Arbitrum One
       token: {
-        address: "0x0000000000000000000000000000000000000000", // TODO: Add mxnB address
-        symbol: "mxnB",
-        decimals: 18, // TODO: Verify decimals
+        address: "0x60Eb87BDa27917889B1ED651b3008a9d5cD38833", // MXNB token on Arbitrum
+        symbol: "MXNB",
+        decimals: 18,
       },
       network: {
         chainId: 42161,
@@ -63,37 +63,7 @@ export const VAULTS: Record<string, Record<string, VaultConfig>> = {
     },
   },
 
-  // Polygon (137)
-  polygon: {
-    BRL1: {
-      address: "0x0000000000000000000000000000000000000000", // TODO: Deploy and update
-      token: {
-        address: "0x0000000000000000000000000000000000000000", // TODO: Add BRL1 address
-        symbol: "BRL1",
-        decimals: 18, // TODO: Verify decimals
-      },
-      network: {
-        chainId: 137,
-        name: "Polygon",
-      },
-    },
-  },
 
-  // Celo Alfajores Testnet (44787) - For testing
-  celoTestnet: {
-    cCOP: {
-      address: "0x0000000000000000000000000000000000000000", // TODO: Deploy and update
-      token: {
-        address: "0x8A567e2aE79CA692Bd748aB832081C45de4041eA", // Same as mainnet
-        symbol: "cCOP",
-        decimals: 18,
-      },
-      network: {
-        chainId: 44787,
-        name: "Celo Alfajores",
-      },
-    },
-  },
 }
 
 /**

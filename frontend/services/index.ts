@@ -12,5 +12,11 @@ export { API_CONFIG, API_ENDPOINTS } from "./config"
 // Export types
 export type { CommerceData, Commerce, CommerceResponse } from "./auth.service"
 export type { CreatePayoutData, Payout, PayoutResponse, PayoutsResponse } from "./payout.service"
-export type { SquidRouteParams, SquidRouteResponse, SquidStatusParams, SquidStatusResponse } from "./squid.service"
+export type {
+  SquidPostHook,
+  SquidRouteParams,
+  SquidRouteResponse,
+  SquidStatusParams,
+  SquidStatusResponse,
+} from "./squid.service"
 
