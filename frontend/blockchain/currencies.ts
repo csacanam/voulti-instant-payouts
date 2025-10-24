@@ -44,7 +44,6 @@ export const MERCHANT_CURRENCIES: CurrencyConfig[] = [
       network: {
         name: "Arbitrum One",
         chainId: 42161,
-        rpcUrl: "https://arb1.arbitrum.io/rpc",
       },
       token: {
         address: "0x46850aD61C2B7d64d08c9C754F45254596696984",
