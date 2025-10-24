@@ -21,14 +21,25 @@ export interface Payout {
   id: string
   from_amount: number
   from_currency: string
+  from_chain: number
+  from_chain_name: string
+  from_token_symbol: string
+  from_token_address: string
+  from_token_decimals: number
+  from_address: string
   to_amount: number
   to_currency: string
+  to_chain: number
+  to_chain_name: string
+  to_token_symbol: string
+  to_token_address: string
+  to_token_decimals: number
   to_name: string
   to_email: string
+  to_address: string | null
   status: string
   created_at: string
   claimed_at: string | null
-  to_address: string | null
 }
 
 export interface PayoutResponse {

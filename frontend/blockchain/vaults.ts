@@ -45,6 +45,18 @@ export const VAULTS: Record<string, Record<string, VaultConfig>> = {
         name: "Celo",
       },
     },
+    BRLA: {
+      address: "0x0B3D083289C71FdbD4921448B4f1ED96B6E9f402", // Deployed & Verified on Celo Mainnet
+      token: {
+        address: "0xFECB3F7c54E2CAAE9dC6Ac9060A822D47E053760", // BRLA token on Celo
+        symbol: "BRLA",
+        decimals: 18,
+      },
+      network: {
+        chainId: 42220,
+        name: "Celo",
+      },
+    },
   },
 
   // Arbitrum One (42161)
@@ -54,7 +66,7 @@ export const VAULTS: Record<string, Record<string, VaultConfig>> = {
       token: {
         address: "0xF197FFC28c23E0309B5559e7a166f2c6164C80aA", // MXNB token on Arbitrum
         symbol: "MXNB",
-        decimals: 18,
+        decimals: 6,
       },
       network: {
         chainId: 42161,

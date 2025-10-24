@@ -18,8 +18,9 @@ interface SinglePayoutFormProps {
 }
 
 const EXCHANGE_RATES: Record<string, number> = {
-  USD: 1,
   COP: 4200,
+  BRL: 5.5,
+  MXN: 18.5,
 }
 
 export function SinglePayoutForm({ currentBalance, onSubmit, disabled = false }: SinglePayoutFormProps) {
@@ -27,7 +28,7 @@ export function SinglePayoutForm({ currentBalance, onSubmit, disabled = false }:
     name: "",
     email: "",
     walletAddress: "", // Will be auto-generated
-    currency: "USD",
+    currency: "COP",
     amount: 0,
   })
 
@@ -88,8 +89,9 @@ export function SinglePayoutForm({ currentBalance, onSubmit, disabled = false }:
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="USD">USD - US Dollar</SelectItem>
               <SelectItem value="COP">COP - Colombian Peso</SelectItem>
+              <SelectItem value="BRL">BRL - Brazilian Real</SelectItem>
+              <SelectItem value="MXN">MXN - Mexican Peso</SelectItem>
             </SelectContent>
           </Select>
         </div>

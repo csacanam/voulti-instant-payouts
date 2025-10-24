@@ -328,8 +328,9 @@ export function CreatePayoutDialog({ open, onOpenChange, onCreatePayout, current
 
 function getExchangeRate(currency: string): number {
   const rates: Record<string, number> = {
-    USD: 1,
     COP: 4200,
+    BRL: 5.5,
+    MXN: 18.5,
   }
   return rates[currency] || 1
 }

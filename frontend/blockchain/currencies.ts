@@ -28,7 +28,7 @@ export const RECIPIENT_CURRENCIES: CurrencyConfig[] = [
   {
     fiat: "BRL",
     symbol: "R$",
-    vault: VAULTS.celo.cREAL,
+    vault: VAULTS.celo.BRLA,
   },
 ]
 

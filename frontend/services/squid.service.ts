@@ -300,7 +300,7 @@ export const squidService = {
       calls: [
         {
           callType: 1, // FULL_TOKEN_BALANCE
-          target: payout.to_token_address, // Token contract
+          target: payout.to_token_address, // Token contract for approval
           value: "0",
           callData: approvalData,
           payload: {
