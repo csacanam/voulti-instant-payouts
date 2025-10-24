@@ -15,7 +15,7 @@ import { RECIPIENT_CURRENCIES } from "@/blockchain/currencies"
 import { BalanceItem } from "@/components/balance-item"
 
 export default function RecipientWalletPage() {
-  const { authenticated, ready, user } = usePrivy()
+  const { authenticated, ready, user, login } = usePrivy()
   const router = useRouter()
   const { token, loading: tokenLoading } = usePrivyToken()
   const { toast } = useToast()
@@ -58,16 +58,44 @@ export default function RecipientWalletPage() {
     fetchPayouts()
   }, [authenticated, token, tokenLoading, toast])
 
-  if (!ready || !authenticated) {
+  // Loading state - waiting for Privy to initialize
+  if (!ready) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center p-4">
-        <Card className="p-8 text-center">
-          <h2 className="text-xl font-semibold mb-2">Login Required</h2>
-          <p className="text-sm text-muted-foreground mb-4">
-            Please login to access your wallet
-          </p>
-          <Button onClick={() => router.push("/claim/example-id")}>
-            Go to Claim Page
+        <div className="text-center space-y-4">
+          <Spinner className="w-12 h-12 mx-auto" />
+          <p className="text-muted-foreground">Loading...</p>
+        </div>
+      </div>
+    )
+  }
+
+  // Not authenticated - show login prompt
+  if (!authenticated) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center p-4">
+        <Card className="max-w-md w-full p-8 text-center space-y-6">
+          {/* Logo and Slogan */}
+          <div className="space-y-1">
+            <h1 className="text-3xl font-bold">Voulti</h1>
+            <p className="text-sm text-muted-foreground">Your Business, Unchained.</p>
+          </div>
+
+          {/* Main Message */}
+          <div className="space-y-3 py-6">
+            <h2 className="text-2xl font-semibold">You have a payment waiting</h2>
+            <p className="text-muted-foreground">
+              Sign in with your email to claim it
+            </p>
+          </div>
+
+          {/* Login Button */}
+          <Button 
+            onClick={login} 
+            size="lg" 
+            className="w-full cursor-pointer"
+          >
+            Sign In
           </Button>
         </Card>
       </div>
@@ -128,13 +156,6 @@ export default function RecipientWalletPage() {
     }
   }
 
-  const handleWithdraw = (currency: string) => {
-    // TODO: Open withdraw dialog
-    toast({
-      title: "Coming Soon",
-      description: `Withdraw ${currency} to bank account`,
-    })
-  }
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -238,7 +259,6 @@ export default function RecipientWalletPage() {
                 key={currency.fiat}
                 currency={currency}
                 recipientAddress={recipientAddress}
-                onWithdraw={handleWithdraw}
                 refreshKey={balanceRefreshKey}
               />
             ))}

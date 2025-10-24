@@ -22,6 +22,7 @@ export default function RecipientLayout({
               <div className="flex items-center justify-between">
                 <div>
                   <h1 className="text-xl font-bold">Voulti</h1>
+                  <p className="text-xs text-muted-foreground">Your Business, Unchained.</p>
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="text-sm text-muted-foreground hidden sm:inline">

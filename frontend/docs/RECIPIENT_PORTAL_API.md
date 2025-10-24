@@ -2,6 +2,16 @@
 
 API endpoints for the recipient portal that frontend developers need to integrate.
 
+## 🚪 Single Entry Point
+
+**The recipient portal has only ONE route**: `/wallet`
+
+- **Unauthenticated**: Shows login prompt with clear messaging
+- **Authenticated**: Shows pending payouts and balances
+- **Loading**: Shows spinner while Privy initializes
+
+The `/claim/:payoutId` route has been removed. All recipients should be directed to `/wallet`.
+
 ---
 
 ## 📡 API Endpoints
