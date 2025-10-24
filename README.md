@@ -6,7 +6,7 @@
 
 ## 🌍 Overview
 
-**Voulti Payouts** is a multi-chain payout dashboard that allows global merchants to send payments in **PYUSD** and automatically distribute local stablecoins — such as **cCOP (Colombia)**, **BRL1 (Brazil)**, and **MXNB (Mexico)** — to their recipients.
+**Voulti Payouts** is a multi-chain payout dashboard that allows global merchants to send payments in **PYUSD** and automatically distribute local stablecoins — such as **cCOP (Colombia)**, **BRLA (Brazil)**, and **MXNB (Mexico)** — to their recipients.
 
 The project was built for **ETHOnline 2025**, as part of the **PayPal USD track**, with the goal of demonstrating how **PYUSD** can become a real settlement rail for cross-border payments in emerging markets.
 
@@ -26,15 +26,13 @@ PYUSD solves the digital dollar part — but not the **last mile** of local liqu
 
 ## 💡 Solution
 
-**Voulti Payouts** bridges that gap by enabling **both single and bulk payouts**.
+**Voulti Payouts** bridges that gap by enabling **single payouts**.
 
 Merchants or platforms can:
 
 1. Fund their account in **PYUSD**.
-2. Choose between:
-   - 💸 **Single payout** – send one payment directly to a recipient in their local stablecoin.
-   - 📦 **Bulk payouts** – upload a list of multiple recipients with payout amounts and countries.
-3. Run the payment(s), and Voulti automatically handles the routing, conversion, and delivery of funds in the **correct local stablecoin** and **network**.
+2. Send **single payouts** – send one payment directly to a recipient in their local stablecoin.
+3. Voulti automatically handles the routing, conversion, and delivery of funds in the **correct local stablecoin** and **network**.
 
 For example:
 
@@ -42,7 +40,7 @@ For example:
 - 🇨🇴 Colombia → **cCOP** on Celo
 - 🇧🇷 Brazil → **BRLA** on Celo
 
-The result: fast, transparent, and affordable payouts that feel native to each market — whether it's one payment or hundreds.
+The result: fast, transparent, and affordable payouts that feel native to each market.
 
 ## 🔄 System Flow
 
@@ -99,12 +97,11 @@ sequenceDiagram
 
 ## ⚙️ MVP Scope
 
-The MVP focuses on two simple flows:
+The MVP focuses on a simple flow:
 
 - **Single Payout:** A merchant sends one payment in PYUSD, and the recipient instantly receives the equivalent in their local stablecoin.
-- **Bulk Payouts:** The merchant executes **multiple payouts in one click**, distributing PYUSD into cCOP, BRLA, and MXNB across different networks.
 
-Both flows are tracked through a dashboard that displays:
+The flow is tracked through a dashboard that displays:
 
 - Current **PYUSD balance**
 - **Total paid** in USD
@@ -162,9 +159,14 @@ Create a `.env.local` file in the `frontend` directory:
 ```bash
 NEXT_PUBLIC_PRIVY_APP_ID=your-privy-app-id
 NEXT_PUBLIC_PRIVY_CLIENT_ID=your-privy-client-id
+NEXT_PUBLIC_API_BASE_URL=http://localhost:3001
+NEXT_PUBLIC_SQUID_INTEGRATOR_ID=your-squid-integrator-id
 ```
 
-Get these values from [Privy Dashboard](https://dashboard.privy.io) after creating your app.
+Get these values from:
+
+- [Privy Dashboard](https://dashboard.privy.io) for Privy credentials
+- [Squid Router](https://squidrouter.com) for integrator ID
 
 ### Run the Frontend
 
@@ -184,17 +186,27 @@ forge build
 forge test
 ```
 
+#### Environment Variables for Contracts
+
+Create a `.env` file in the `contracts` directory:
+
+```bash
+PRIVATE_KEY=your-private-key
+VAULT_OWNER=your-vault-owner-address
+ETHERSCAN_API_KEY=your-etherscan-api-key
+TOKEN_CCOP=0x8A567e2aE79CA692Bd748aB832081C45de4041eA
+TOKEN_CREAL=0xe8537a3d056DA446677B9E9d6c5dB704EaAb4787
+TOKEN_MXNB=0xF197FFC28c23E0309B5559e7a166f2c6164C80aA
+TOKEN_BRLA=0xFECB3F7c54E2CAAE9dC6Ac9060A822D47E053760
+```
+
+**Note:** The token addresses are already configured for mainnet. For testnet deployment, update the addresses accordingly.
+
 ---
 
 ## 🏆 Hackathon Track
 
 Built for the **PayPal USD** track at **ETHOnline 2025**.
-
-Also relevant to:
-
-- **Pyth Network** – for FX price feeds
-- **Blockscout** – for payout transparency
-- **Lit Protocol** – for secure merchant authorization
 
 ---
 
