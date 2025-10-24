@@ -8,6 +8,7 @@ export interface Payout {
   amountUSD: number
   date: string
   status: "completed" | "pending" | "failed"
+  statusOriginal?: string // Original status from backend (Funded, Claimed, etc.)
   txHash: string
 }
 

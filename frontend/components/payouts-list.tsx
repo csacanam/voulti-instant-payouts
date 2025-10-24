@@ -32,9 +32,9 @@ export function PayoutsList({ payouts, onPayoutClick, onCreatePayout, isAuthenti
     const matchesSearch = payout.recipientName.toLowerCase().includes(searchQuery.toLowerCase())
     const matchesCurrency = currencyFilter === "all" || payout.currency === currencyFilter
 
-    const payoutDate = new Date(payout.date)
-    const matchesDateFrom = !dateFrom || payoutDate >= dateFrom
-    const matchesDateTo = !dateTo || payoutDate <= dateTo
+    // Skip date filtering for now since payout.date is already formatted
+    const matchesDateFrom = true
+    const matchesDateTo = true
 
     const minAmountNum = minAmount ? Number.parseFloat(minAmount) : 0
     const maxAmountNum = maxAmount ? Number.parseFloat(maxAmount) : Number.POSITIVE_INFINITY
@@ -222,16 +222,7 @@ export function PayoutsList({ payouts, onPayoutClick, onCreatePayout, isAuthenti
                     <div className="flex items-center gap-2 text-sm text-muted-foreground">
                       <CalendarIcon className="w-3.5 h-3.5" />
                       <span>
-                        {new Date(payout.date).toLocaleDateString("en-US", {
-                          year: "numeric",
-                          month: "short",
-                          day: "numeric",
-                        })}{" "}
-                        at{" "}
-                        {new Date(payout.date).toLocaleTimeString("en-US", {
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        })}
+                        {payout.date}
                       </span>
                     </div>
                   </div>

@@ -21,7 +21,7 @@ PAYOUT RECEIPT
 ==============
 
 ID: ${payout.id}
-Date: ${new Date(payout.date).toLocaleString("en-US")}
+Date: ${payout.date}
 Recipient: ${payout.recipientName}
 Email: ${payout.email}
 Wallet: ${payout.walletAddress}
@@ -56,19 +56,13 @@ TX Hash: ${payout.txHash}
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <Calendar className="w-4 h-4" />
                 <span>
-                  {new Date(payout.date).toLocaleDateString("en-US", {
-                    year: "numeric",
-                    month: "long",
-                    day: "numeric",
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  })}
+                  {payout.date}
                 </span>
               </div>
             </div>
 
             <Badge className="bg-accent text-accent-foreground">
-              {payout.status === "completed" ? "Completed" : "Pending"}
+              {payout.statusOriginal || "Unknown"}
             </Badge>
           </div>
 

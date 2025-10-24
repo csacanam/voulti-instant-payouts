@@ -33,6 +33,29 @@ export const RECIPIENT_CURRENCIES: CurrencyConfig[] = [
 ]
 
 /**
+ * All supported currencies for merchant balances
+ */
+export const MERCHANT_CURRENCIES: CurrencyConfig[] = [
+  {
+    fiat: "USD",
+    symbol: "$",
+    vault: {
+      address: "0x46850aD61C2B7d64d08c9C754F45254596696984", // pyUSD on Arbitrum
+      network: {
+        name: "Arbitrum One",
+        chainId: 42161,
+        rpcUrl: "https://arb1.arbitrum.io/rpc",
+      },
+      token: {
+        address: "0x46850aD61C2B7d64d08c9C754F45254596696984",
+        symbol: "PYUSD",
+        decimals: 6,
+      },
+    },
+  },
+]
+
+/**
  * Get currency config by fiat code
  */
 export function getCurrencyConfig(fiat: string): CurrencyConfig | null {
