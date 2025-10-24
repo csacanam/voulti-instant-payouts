@@ -22,7 +22,7 @@ export const VAULTS: Record<string, Record<string, VaultConfig>> = {
   // Celo Mainnet (42220)
   celo: {
     cCOP: {
-      address: "0x77e94a9BC69409150Ca3a407Da6383CC626e7CC8", // Deployed on Celo Mainnet
+      address: "0x8d0D5D852062017F312a00e39f3B2311CF12aCbf", // Deployed & Verified on Celo Mainnet
       token: {
         address: "0x8A567e2aE79CA692Bd748aB832081C45de4041eA", // cCOP token on Celo
         symbol: "cCOP",
@@ -34,7 +34,7 @@ export const VAULTS: Record<string, Record<string, VaultConfig>> = {
       },
     },
     cREAL: {
-      address: "0x60Eb87BDa27917889B1ED651b3008a9d5cD38833", // Deployed on Celo Mainnet
+      address: "0xB7d2300eA9f301F2F782bf52F452658E1F68d45a", // Deployed & Verified on Celo Mainnet
       token: {
         address: "0xe8537a3d056DA446677B9E9d6c5dB704EaAb4787", //cREAL token on Celo
         symbol: "cREAL",
@@ -50,9 +50,9 @@ export const VAULTS: Record<string, Record<string, VaultConfig>> = {
   // Arbitrum One (42161)
   arbitrum: {
     MXNB: {
-      address: "0x77e94a9BC69409150Ca3a407Da6383CC626e7CC8", // Deployed on Arbitrum One
+      address: "0x4B87eE9DFEAd2d20911cCF0c7AD8667099A46d00", // Deployed & Verified on Arbitrum One
       token: {
-        address: "0x60Eb87BDa27917889B1ED651b3008a9d5cD38833", // MXNB token on Arbitrum
+        address: "0xF197FFC28c23E0309B5559e7a166f2c6164C80aA", // MXNB token on Arbitrum
         symbol: "MXNB",
         decimals: 18,
       },
