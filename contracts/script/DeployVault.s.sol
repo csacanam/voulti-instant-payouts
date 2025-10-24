@@ -8,7 +8,7 @@ import "../src/PayoutVault.sol";
  * @title DeployVault
  * @notice Smart deployment script that reads token addresses from .env
  * @dev Usage:
- * 
+ *
  * TOKEN=CCOP forge script script/DeployVault.s.sol:DeployVault --rpc-url https://forno.celo.org --broadcast --verify
  * TOKEN=CREAL forge script script/DeployVault.s.sol:DeployVault --rpc-url https://forno.celo.org --broadcast --verify
  * TOKEN=MXNB forge script script/DeployVault.s.sol:DeployVault --rpc-url https://arb1.arbitrum.io/rpc --broadcast --verify
@@ -19,12 +19,17 @@ contract DeployVault is Script {
         uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");
         address owner = vm.envAddress("VAULT_OWNER");
         string memory tokenName = vm.envString("TOKEN");
-        
+
         // Build env var name: TOKEN_CCOP, TOKEN_CREAL, etc.
-        string memory tokenEnvVar = string(abi.encodePacked("TOKEN_", tokenName));
+        string memory tokenEnvVar = string(
+            abi.encodePacked("TOKEN_", tokenName)
+        );
         address tokenAddress = vm.envAddress(tokenEnvVar);
 
-        require(tokenAddress != address(0), string(abi.encodePacked(tokenEnvVar, " not set in .env")));
+        require(
+            tokenAddress != address(0),
+            string(abi.encodePacked(tokenEnvVar, " not set in .env"))
+        );
         require(owner != address(0), "VAULT_OWNER not set");
 
         console.log("=== PayoutVault Deployment ===");
@@ -52,4 +57,3 @@ contract DeployVault is Script {
         console.log("3. Configure Squid post-hook");
     }
 }
-

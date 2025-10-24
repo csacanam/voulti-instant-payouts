@@ -6,6 +6,7 @@
 export { authService } from "./auth.service"
 export { payoutService } from "./payout.service"
 export { squidService } from "./squid.service"
+export { recipientService } from "./recipient.service"
 export { apiClient, ApiError } from "./api"
 export { API_CONFIG, API_ENDPOINTS } from "./config"
 
@@ -20,4 +21,5 @@ export type {
   SquidStatusParams,
   SquidStatusResponse,
 } from "./squid.service"
+export type { PublicPayoutResponse, InitializeResponse, ClaimResponse, PendingPayout, PendingPayoutsResponse } from "./recipient.service"
 
