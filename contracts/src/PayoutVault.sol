@@ -61,8 +61,8 @@ contract PayoutVault {
     }
 
     /**
-     * @notice Deposit tokens into the vault (with transferFrom)
-     * @dev For manual deposits where caller has tokens and approved vault
+     * @notice Deposit tokens into the vault
+     * @dev This will be called by Squid's post-hook after cross-chain swap
      * @dev Links payoutId to commerce to prevent cross-commerce withdrawal attacks
      * @param commerce Address of the commerce receiving the payout
      * @param amount Amount of tokens to deposit
@@ -85,38 +85,6 @@ contract PayoutVault {
         // Transfer tokens from sender to vault
         bool success = token.transferFrom(msg.sender, address(this), amount);
         if (!success) revert TransferFailed();
-
-        // Update balances
-        commerceBalances[commerce] += amount;
-        totalDeposits += amount;
-
-        emit Deposit(commerce, amount, payoutId);
-    }
-
-    /**
-     * @notice Record a deposit when tokens are already in the vault
-     * @dev This is for Squid post-hooks where tokens are sent to vault first
-     * @dev Links payoutId to commerce to prevent cross-commerce withdrawal attacks
-     * @param commerce Address of the commerce receiving the payout
-     * @param amount Amount of tokens that were received
-     * @param payoutId Unique ID of the payout for tracking
-     */
-    function recordDeposit(
-        address commerce,
-        uint256 amount,
-        string calldata payoutId
-    ) external {
-        if (amount == 0) revert ZeroAmount();
-
-        // Prevent duplicate payoutIds (security: each payoutId should be unique)
-        if (payoutToCommerce[payoutId] != address(0))
-            revert PayoutAlreadyExists();
-
-        // Link payoutId to commerce
-        payoutToCommerce[payoutId] = commerce;
-
-        // Note: No token transfer needed - tokens are already in vault
-        // Squid sends tokens to vault first, then calls this function
 
         // Update balances
         commerceBalances[commerce] += amount;

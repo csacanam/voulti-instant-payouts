@@ -41,7 +41,7 @@ export default function RecipientWalletPage() {
         setPendingPayouts(response.payouts)
       } catch (err) {
         console.error("Failed to fetch pending payouts:", err)
-        const errorMessage = err instanceof Error ? err.message : "Failed to load pending payouts"
+        const errorMessage = err instanceof Error ? err.message : "Failed to load pending payments"
         
         toast({
           variant: "destructive",
@@ -111,14 +111,14 @@ export default function RecipientWalletPage() {
       setPendingPayouts(response.payouts)
       toast({
         title: "Refreshed",
-        description: "Pending payouts updated",
+        description: "Pending payments updated",
       })
     } catch (err) {
       console.error("Failed to refresh:", err)
       toast({
         variant: "destructive",
         title: "Error",
-        description: "Failed to refresh payouts",
+        description: "Failed to refresh payments",
       })
     } finally {
       setIsRefreshing(false)
@@ -149,7 +149,7 @@ export default function RecipientWalletPage() {
       toast({
         variant: "destructive",
         title: "Claim failed",
-        description: err instanceof Error ? err.message : "Failed to claim payout",
+        description: err instanceof Error ? err.message : "Failed to claim payment",
       })
     } finally {
       setClaimingPayoutId(null)
@@ -174,16 +174,16 @@ export default function RecipientWalletPage() {
 
   return (
     <div className="container mx-auto px-4 py-6 max-w-2xl space-y-6">
-        {/* Pending Payouts */}
+        {/* Pending Payments */}
         <section>
           <div className="flex items-center justify-between mb-4">
             <div>
-              <h2 className="text-xl font-semibold">Pending Payouts</h2>
+              <h2 className="text-xl font-semibold">Pending Payments</h2>
               <p className="text-sm text-muted-foreground">
                 {loadingPayouts ? (
                   "Loading..."
                 ) : (
-                  `${fundedPayouts.length} payout${fundedPayouts.length !== 1 ? 's' : ''} ready to claim`
+                  `${fundedPayouts.length} payment${fundedPayouts.length !== 1 ? 's' : ''} ready to claim`
                 )}
               </p>
             </div>
@@ -205,7 +205,7 @@ export default function RecipientWalletPage() {
             </div>
           ) : pendingPayouts.length === 0 ? (
             <Card className="p-8 text-center">
-              <p className="text-muted-foreground">No pending payouts</p>
+              <p className="text-muted-foreground">No pending payments</p>
             </Card>
           ) : (
             <div className="space-y-3">
