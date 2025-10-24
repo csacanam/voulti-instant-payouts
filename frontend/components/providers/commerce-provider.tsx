@@ -1,6 +1,6 @@
 "use client"
 
-import { createContext, useContext, useState, useEffect, ReactNode } from "react"
+import { createContext, useContext, useState, useEffect, useMemo, ReactNode } from "react"
 import { usePrivy } from "@privy-io/react-auth"
 import { authService, ApiError, type Commerce } from "@/services"
 
@@ -26,28 +26,25 @@ export function CommerceProvider({ children }: { children: ReactNode }) {
   const [error, setError] = useState<string | null>(null)
   const [needsRegistration, setNeedsRegistration] = useState(false)
 
+  // Stabilize wallet address to prevent infinite loops
+  const walletAddress = useMemo(() => user?.wallet?.address, [user?.wallet?.address])
+
   // Check if commerce exists when user authenticates
   useEffect(() => {
     // Wait for Privy to be ready
-    if (!ready || !authenticated || !user?.wallet?.address) {
+    if (!ready || !authenticated || !walletAddress) {
       setCommerce(null)
       setNeedsRegistration(false)
       return
     }
 
-    console.log("Checking commerce for wallet:", user.wallet.address)
+    console.log("Checking commerce for wallet:", walletAddress)
 
     const checkCommerce = async () => {
       setLoading(true)
       setError(null)
 
       try {
-        const walletAddress = user.wallet?.address
-        if (!walletAddress) {
-          setError("No wallet address found")
-          return
-        }
-
         const commerceData = await authService.getCommerce(walletAddress)
         console.log("Commerce found:", commerceData)
         console.log("Email:", commerceData.confirmation_email)
@@ -75,7 +72,7 @@ export function CommerceProvider({ children }: { children: ReactNode }) {
     }
 
     checkCommerce()
-  }, [ready, authenticated, user?.wallet?.address])
+  }, [ready, authenticated, walletAddress])
 
   const registerCommerce = async (data: {
     name: string

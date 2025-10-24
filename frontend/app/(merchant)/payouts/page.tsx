@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo } from "react"
 import { usePrivy } from "@privy-io/react-auth"
 import { StatsCards } from "@/components/stats-cards"
 import { PayoutsList } from "@/components/payouts-list"
@@ -81,27 +81,32 @@ export default function PayoutsPage() {
   const [loadingPayouts, setLoadingPayouts] = useState(true)
   
   
+  // Stabilize vault config to prevent infinite loops
+  const vaultConfig = useMemo(() => {
+    if (!commerce) return null
+    
+    return {
+      address: PYUSD_ARBITRUM_ADDRESS,
+      network: {
+        name: "Arbitrum One",
+        chainId: ARBITRUM_CHAIN_ID,
+        rpcUrl: ARBITRUM_RPC_URL,
+      },
+      token: {
+        address: PYUSD_ARBITRUM_ADDRESS,
+        symbol: "PYUSD",
+        decimals: 6,
+      },
+    }
+  }, [commerce])
+
   // Get real pyUSD balance from Arbitrum
   const { balance: pyUsdBalance, loading: balanceLoading } = useTokenBalance(
-    commerce
-      ? {
-          address: PYUSD_ARBITRUM_ADDRESS,
-          network: {
-            name: "Arbitrum One",
-            chainId: ARBITRUM_CHAIN_ID,
-            rpcUrl: ARBITRUM_RPC_URL,
-          },
-          token: {
-            address: PYUSD_ARBITRUM_ADDRESS,
-            symbol: "PYUSD",
-            decimals: 6,
-          },
-        }
-      : null,
+    vaultConfig,
     commerce?.wallet
   )
   
-  const balance = pyUsdBalance ?? 0
+  const balance = pyUsdBalance ? parseFloat(pyUsdBalance) : 0
   const [selectedPayout, setSelectedPayout] = useState<Payout | null>(null)
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false)
   const [isDetailDialogOpen, setIsDetailDialogOpen] = useState(false)

@@ -51,7 +51,7 @@ export default function Home() {
   )
 
   // Use real balance or fallback to 0
-  const balance = pyUsdBalance ?? 0
+  const balance = pyUsdBalance ? parseFloat(pyUsdBalance) : 0
   const totalReceived30d = 45000 // TODO: Get from backend
   const totalPayouts30d = 12000 // TODO: Get from backend
 
