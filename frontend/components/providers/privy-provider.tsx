@@ -21,7 +21,7 @@ export default function PrivyProviderWrapper({ children }: { children: React.Rea
         embeddedWallets: {
           createOnLogin: "users-without-wallets",
         },
-        loginMethods: ["email", "wallet", "google"],
+        loginMethods: ["email"],
       }}
     >
       {children}
