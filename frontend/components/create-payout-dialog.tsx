@@ -15,6 +15,34 @@ import { useCommerce } from "@/components/providers/commerce-provider"
 import { useSquidSwap } from "@/hooks/use-squid-swap"
 import { useToast } from "@/hooks/use-toast"
 
+// Helper function to format date safely with date and time
+function formatDate(dateString: string): string {
+  try {
+    const date = new Date(dateString)
+    if (isNaN(date.getTime())) {
+      console.warn("Invalid date string:", dateString)
+      return "Invalid Date"
+    }
+    
+    // Format as "Oct 23, 2025 at 7:57 PM"
+    const dateStr = date.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    })
+    const timeStr = date.toLocaleTimeString("en-US", {
+      hour: "numeric",
+      minute: "2-digit",
+      hour12: true,
+    })
+    
+    return `${dateStr} at ${timeStr}`
+  } catch (error) {
+    console.warn("Error formatting date:", dateString, error)
+    return "Invalid Date"
+  }
+}
+
 interface CreatePayoutDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
@@ -148,7 +176,7 @@ export function CreatePayoutDialog({ open, onOpenChange, onCreatePayout, current
         currency: createdPayout.to_currency,
         amount: createdPayout.to_amount,
         amountUSD: createdPayout.from_amount,
-        date: createdPayout.created_at,
+        date: formatDate(createdPayout.created_at),
         status: "completed", // Update status after successful swap
         txHash: swapResult.txHash || `0x${Math.random().toString(16).substring(2, 66)}`,
       }
@@ -191,6 +219,7 @@ export function CreatePayoutDialog({ open, onOpenChange, onCreatePayout, current
       return
     }
     
+    // Reset all state
     setStep("upload")
     setCsvData([])
     setValidationErrors([])
@@ -198,17 +227,26 @@ export function CreatePayoutDialog({ open, onOpenChange, onCreatePayout, current
     setError(null)
     setLoading(false)
     setIsProcessing(false)
+    setSwapStatus({ status: "idle", message: "" })
     onOpenChange(false)
   }
 
-  // Reset swap status when dialog opens/closes
+  // Reset state when dialog opens/closes
   const handleOpenChange = (open: boolean) => {
     if (!open) {
       handleClose()
     } else {
-      // Clean up swap status when opening
+      // Clean up all state when opening
+      setStep("upload")
+      setCsvData([])
+      setValidationErrors([])
+      setPayoutType("single")
+      setError(null)
+      setLoading(false)
+      setIsProcessing(false)
       setSwapStatus({ status: "idle", message: "" })
     }
+    onOpenChange(open)
   }
 
   const totalUSD = csvData.reduce((sum, row) => sum + row.amount / getExchangeRate(row.currency), 0)

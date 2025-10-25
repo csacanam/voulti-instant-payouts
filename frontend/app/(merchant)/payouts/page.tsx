@@ -102,16 +102,19 @@ export default function PayoutsPage() {
     }
   }, [commerce, pyusdConfig])
 
-  // Get real pyUSD balance from Arbitrum
-  const { balance: pyUsdBalance, loading: balanceLoading } = useTokenBalance(
-    vaultConfig,
-    commerce?.wallet || null
-  )
-  
-  const balance = pyUsdBalance ? parseFloat(pyUsdBalance) : 0
+  const [balanceRefreshKey, setBalanceRefreshKey] = useState(0)
   const [selectedPayout, setSelectedPayout] = useState<Payout | null>(null)
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false)
   const [isDetailDialogOpen, setIsDetailDialogOpen] = useState(false)
+
+  // Get real pyUSD balance from Arbitrum
+  const { balance: pyUsdBalance, loading: balanceLoading } = useTokenBalance(
+    vaultConfig,
+    commerce?.wallet || null,
+    balanceRefreshKey
+  )
+  
+  const balance = pyUsdBalance ? parseFloat(pyUsdBalance) : 0
 
   // Fetch payouts from backend
   useEffect(() => {
@@ -147,7 +150,8 @@ export default function PayoutsPage() {
   const handleCreatePayout = (newPayouts: Payout[], totalAmount: number) => {
     setPayouts([...newPayouts, ...payouts])
     setIsCreateDialogOpen(false)
-    // Balance will auto-refresh from blockchain via useTokenBalance hook
+    // Trigger balance refresh after payout
+    setBalanceRefreshKey(prev => prev + 1)
   }
 
   const handlePayoutClick = (payout: Payout) => {
