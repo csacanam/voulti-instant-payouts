@@ -12,11 +12,7 @@ import { useCommerce } from "@/components/providers/commerce-provider"
 import { useTokenBalance } from "@/hooks/use-token-balance"
 import { useToast } from "@/hooks/use-toast"
 import { Spinner } from "@/components/ui/spinner"
-
-// pyUSD on Arbitrum configuration
-const PYUSD_ARBITRUM_ADDRESS = "0x46850aD61C2B7d64d08c9C754F45254596696984"
-const ARBITRUM_RPC_URL = "https://arb1.arbitrum.io/rpc"
-const ARBITRUM_CHAIN_ID = 42161
+import { MERCHANT_CURRENCIES } from "@/blockchain/currencies"
 
 // Helper function to format date safely with date and time
 function formatDate(dateString: string): string {
@@ -81,29 +77,35 @@ export default function PayoutsPage() {
   const [loadingPayouts, setLoadingPayouts] = useState(true)
   
   
+  // Get PYUSD configuration from centralized config
+  const pyusdConfig = MERCHANT_CURRENCIES[0]?.token
+  if (!pyusdConfig) {
+    throw new Error("PYUSD configuration not found")
+  }
+
   // Stabilize vault config to prevent infinite loops
   const vaultConfig = useMemo(() => {
-    if (!commerce) return null
+    if (!commerce || !pyusdConfig) return null
     
     return {
-      address: PYUSD_ARBITRUM_ADDRESS,
+      address: pyusdConfig.address,
       network: {
-        name: "Arbitrum One",
-        chainId: ARBITRUM_CHAIN_ID,
-        rpcUrl: ARBITRUM_RPC_URL,
+        name: pyusdConfig.network.name,
+        chainId: pyusdConfig.network.chainId,
+        rpcUrl: pyusdConfig.network.rpcUrl,
       },
       token: {
-        address: PYUSD_ARBITRUM_ADDRESS,
-        symbol: "PYUSD",
-        decimals: 6,
+        address: pyusdConfig.address,
+        symbol: pyusdConfig.symbol,
+        decimals: pyusdConfig.decimals,
       },
     }
-  }, [commerce])
+  }, [commerce, pyusdConfig])
 
   // Get real pyUSD balance from Arbitrum
   const { balance: pyUsdBalance, loading: balanceLoading } = useTokenBalance(
     vaultConfig,
-    commerce?.wallet
+    commerce?.wallet || null
   )
   
   const balance = pyUsdBalance ? parseFloat(pyUsdBalance) : 0

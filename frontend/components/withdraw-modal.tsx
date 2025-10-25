@@ -19,6 +19,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Wallet, Building2, Loader2 } from "lucide-react"
+import { getNetworkByChainId } from "@/blockchain/networks"
 import { useToast } from "@/hooks/use-toast"
 
 interface WithdrawModalProps {
@@ -163,7 +164,7 @@ export function WithdrawModal({
                 onChange={(e) => setWalletAddress(e.target.value)}
               />
               <p className="text-xs text-muted-foreground">
-                The recipient wallet address on {chainId === 42220 ? "Celo" : "Arbitrum"}
+                The recipient wallet address on {getNetworkByChainId(chainId)?.name || "Unknown Network"}
               </p>
             </div>
 

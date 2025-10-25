@@ -4,11 +4,22 @@
  */
 
 import { VaultConfig, VAULTS } from "./vaults"
+import { NETWORKS } from "./networks"
 
 export interface CurrencyConfig {
   fiat: string // USD, COP, MXN, BRL
   symbol: string // $, etc
-  vault: VaultConfig
+  vault?: VaultConfig // Optional for merchant currencies
+  token?: {
+    address: string
+    symbol: string
+    decimals: number
+    network: {
+      chainId: number
+      name: string
+      rpcUrl: string
+    }
+  }
 }
 
 /**
@@ -39,17 +50,11 @@ export const MERCHANT_CURRENCIES: CurrencyConfig[] = [
   {
     fiat: "USD",
     symbol: "$",
-    vault: {
-      address: "0x46850aD61C2B7d64d08c9C754F45254596696984", // pyUSD on Arbitrum
-      network: {
-        name: "Arbitrum One",
-        chainId: 42161,
-      },
-      token: {
-        address: "0x46850aD61C2B7d64d08c9C754F45254596696984",
-        symbol: "PYUSD",
-        decimals: 6,
-      },
+    token: {
+      address: "0x46850aD61C2B7d64d08c9C754F45254596696984", // PYUSD on Arbitrum
+      symbol: "PYUSD",
+      decimals: 6,
+      network: NETWORKS.arbitrum,
     },
   },
 ]

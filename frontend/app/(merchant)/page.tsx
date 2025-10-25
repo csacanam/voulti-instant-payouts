@@ -29,23 +29,27 @@ import { Lock } from "lucide-react"
 import { useCommerce } from "@/components/providers/commerce-provider"
 import { useTokenBalance } from "@/hooks/use-token-balance"
 
-// pyUSD on Arbitrum configuration
-const PYUSD_ARBITRUM_ADDRESS = "0x46850aD61C2B7d64d08c9C754F45254596696984"
-const ARBITRUM_RPC_URL = "https://arb1.arbitrum.io/rpc"
-const ARBITRUM_CHAIN_ID = 42161
+// Import centralized configuration
+import { MERCHANT_CURRENCIES } from "@/blockchain/currencies"
 
 export default function Home() {
   const { authenticated } = usePrivy()
   const { commerce } = useCommerce()
 
+  // Get PYUSD configuration from centralized config
+  const pyusdConfig = MERCHANT_CURRENCIES[0]?.token
+  if (!pyusdConfig) {
+    throw new Error("PYUSD configuration not found")
+  }
+
   // Get real pyUSD balance from Arbitrum
   const { balance: pyUsdBalance, loading: balanceLoading } = useTokenBalance(
     commerce
       ? {
-          tokenAddress: PYUSD_ARBITRUM_ADDRESS,
+          tokenAddress: pyusdConfig.address,
           walletAddress: commerce.wallet,
-          chainId: ARBITRUM_CHAIN_ID,
-          rpcUrl: ARBITRUM_RPC_URL,
+          chainId: pyusdConfig.network.chainId,
+          rpcUrl: pyusdConfig.network.rpcUrl,
         }
       : null
   )

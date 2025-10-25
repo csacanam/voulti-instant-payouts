@@ -6,6 +6,7 @@
 import { useState, useEffect } from "react"
 import { ethers } from "ethers"
 import { VaultConfig } from "@/blockchain/vaults"
+import { getNetworkByChainId } from "@/blockchain/networks"
 
 const ERC20_ABI = [
   "function balanceOf(address owner) view returns (uint256)",
@@ -46,14 +47,14 @@ export function useTokenBalance(
       setError(null)
 
       try {
-        // Get RPC URL for the network
-        const rpcUrl = getRpcUrl(vaultConfig.network.chainId)
-        if (!rpcUrl) {
-          throw new Error(`No RPC URL for chain ${vaultConfig.network.chainId}`)
+        // Get network configuration
+        const network = getNetworkByChainId(vaultConfig.network.chainId)
+        if (!network) {
+          throw new Error(`No network configuration for chain ${vaultConfig.network.chainId}`)
         }
 
         // Create provider
-        const provider = new ethers.JsonRpcProvider(rpcUrl)
+        const provider = new ethers.JsonRpcProvider(network.rpcUrl)
 
         // Create token contract instance (for the ERC20 token, not the vault)
         const tokenContract = new ethers.Contract(
@@ -85,15 +86,4 @@ export function useTokenBalance(
   return { balance, loading, error }
 }
 
-/**
- * Get RPC URL for a chain ID
- */
-function getRpcUrl(chainId: number): string | null {
-  const RPC_URLS: Record<number, string> = {
-    42220: "https://forno.celo.org", // Celo Mainnet
-    42161: "https://arb1.arbitrum.io/rpc", // Arbitrum One
-  }
-
-  return RPC_URLS[chainId] || null
-}
 

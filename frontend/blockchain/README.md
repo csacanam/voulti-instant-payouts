@@ -36,16 +36,17 @@ const vaultConfig = getVaultConfig("celo", "cCOP");
 // Returns: { address, token: { address, symbol, decimals }, network: { chainId, name } }
 
 // Get just the address
-const vaultAddress = getVaultAddress(42220, "cCOP"); // by chainId
+const vaultAddress = getVaultAddress(42220, "cCOP"); // by chainId (Celo Mainnet)
 // Returns: "0x..." or null
 
 // Check if vault exists
 if (vaultExists(42220, "cCOP")) {
+  // Celo Mainnet
   // Vault is deployed and configured
 }
 
 // Get all vaults for a network
-const celoVaults = getVaultsByChainId(42220);
+const celoVaults = getVaultsByChainId(42220); // Celo Mainnet
 ```
 
 ## Complete Deployment Workflow
@@ -65,7 +66,7 @@ PRIVATE_KEY=0x... \
 VAULT_OWNER=0xYourBackendWallet \
 TOKEN_ADDRESS=0x8A567e2aE79CA692Bd748aB832081C45de4041eA \
 forge script script/PayoutVault.s.sol:PayoutVaultDeployment \
-  --rpc-url https://forno.celo.org \
+  --rpc-url https://forno.celo.org \ # Celo Mainnet RPC
   --broadcast \
   --verify
 ```
@@ -103,7 +104,7 @@ celo: {
       decimals: 18,
     },
     network: {
-      chainId: 42220,
+      chainId: 42220, // Celo Mainnet
       name: "Celo",
     },
   },
@@ -172,7 +173,7 @@ When you deploy a new vault:
    ```typescript
    import { vaultExists } from "@/blockchain";
 
-   console.log(vaultExists(42220, "cCOP")); // Should return true
+   console.log(vaultExists(42220, "cCOP")); // Should return true (Celo Mainnet)
    ```
 
 ## Vault Deployment Checklist
@@ -189,12 +190,12 @@ For each new token vault:
 
 ## Networks Supported
 
-| Network                  | Chain ID | Tokens      |
-| ------------------------ | -------- | ----------- |
-| Celo Mainnet             | 42220    | cCOP, cREAL |
-| Arbitrum One             | 42161    | mxnB        |
-| Polygon                  | 137      | BRL1        |
-| Celo Alfajores (Testnet) | 44787    | cCOP        |
+| Network                  | Chain ID | Tokens     |
+| ------------------------ | -------- | ---------- |
+| Celo Mainnet             | 42220    | cCOP, BRLA |
+| Arbitrum One             | 42161    | MXNB       |
+| Polygon                  | 137      | BRL1       |
+| Celo Alfajores (Testnet) | 44787    | cCOP       |
 
 ## Example: Squid Post-Hook Configuration
 
